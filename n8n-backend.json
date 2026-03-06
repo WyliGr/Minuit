@@ -1,0 +1,641 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const baseUrl = \"https://www.allocine.fr/_/showtimes/theater-P0963/d-\";\nconst formattedDate = $input.first().json['formatted-url']\nreturn [{\n  json: {\n    UGCUrl: baseUrl + formattedDate\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        64
+      ],
+      "id": "4e361ed9-c0fd-4789-9e5b-6c5f6a630c3c",
+      "name": "UGC Link Builder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseUrl = \"https://www.allocine.fr/_/showtimes/theater-P0026/d-\";\nconst formattedDate = $input.first().json['formatted-url']\nreturn [{\n  json: {\n    CosmosURL: baseUrl + formattedDate\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        64
+      ],
+      "id": "02610d41-1f45-4c88-b977-7fcd7d3b1886",
+      "name": "Cosmos Link Builder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst nomDuCinema = \"UGC Ciné Cité\";\nconst now = new Date();\n\nconst simplifiedData = results.map(item => {\n  const st = item.showtimes;\n  if (!st) return null;\n\n  let allShowtimes = [];\n\n  Object.keys(st).forEach(key => {\n    const list = st[key];\n    if (Array.isArray(list)) {\n      list.forEach(s => {\n        const date = new Date(s.startsAt);\n        \n        // OPTIONNEL : Ne garder que les séances futures de la journée\n        if (date < now) return; \n\n        const heure = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });\n        \n        allShowtimes.push({\n          time: heure,\n          rawTime: s.startsAt,\n          isVost: s.diffusionVersion === \"ORIGINAL\",\n          isPreview: !!s.isPreview\n        });\n      });\n    }\n  });\n\n  if (allShowtimes.length === 0) return null;\n\n  // Tri chronologique\n  allShowtimes.sort((a, b) => a.rawTime.localeCompare(b.rawTime));\n\n  return {\n    titre: item.movie?.title?.toUpperCase().replace(/[\"«»]/g, '').trim() || \"FILM INCONNU\",\n    duree: item.movie?.runtime || 0,\n    horaires: allShowtimes\n  };\n}).filter(film => film !== null);\n\nreturn [{ json: { cinema: nomDuCinema, films: simplifiedData } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        320
+      ],
+      "id": "42c28cff-0b97-462a-ac96-7fa0d0822090",
+      "name": "Simplify UGC JSON"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.UGCUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        32,
+        192
+      ],
+      "id": "9700431f-5535-4a42-8be2-8827913252d2",
+      "name": "UGC Request"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.CosmosURL }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        192
+      ],
+      "id": "7c9c517e-a9e0-41e3-90e8-2bf12a6e5fc7",
+      "name": "Cosmos Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst nomDuCinema = \"Le Cosmos\";\nconst now = new Date();\n\nconst simplifiedData = results.map(item => {\n  const st = item.showtimes;\n  if (!st) return null;\n\n  let allShowtimes = [];\n\n  Object.keys(st).forEach(key => {\n    const list = st[key];\n    if (Array.isArray(list)) {\n      list.forEach(s => {\n        const date = new Date(s.startsAt);\n        if (date < now) return; \n\n        const heure = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });\n        \n        allShowtimes.push({\n          time: heure,\n          rawTime: s.startsAt,\n          isVost: s.diffusionVersion === \"ORIGINAL\",\n          isPreview: !!s.isPreview\n        });\n      });\n    }\n  });\n\n  if (allShowtimes.length === 0) return null;\n  allShowtimes.sort((a, b) => a.rawTime.localeCompare(b.rawTime));\n\n  return {\n    titre: item.movie?.title?.toUpperCase().replace(/[\"«»]/g, '').trim() || \"FILM INCONNU\",\n    duree: item.movie?.runtime || 0,\n    horaires: allShowtimes\n  };\n}).filter(film => film !== null);\n\nreturn [{ json: { cinema: nomDuCinema, films: simplifiedData } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        320
+      ],
+      "id": "7ed3e7de-6500-45bb-bd46-b2d591fbf5ec",
+      "name": "Simplify Cosmos JSON"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst nomDuCinema = \"Vox\";\nconst now = new Date();\n\nconst simplifiedData = results.map(item => {\n  const st = item.showtimes;\n  if (!st) return null;\n\n  let allShowtimes = [];\n\n  Object.keys(st).forEach(key => {\n    const list = st[key];\n    if (Array.isArray(list)) {\n      list.forEach(s => {\n        const date = new Date(s.startsAt);\n        if (date < now) return; \n\n        const heure = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });\n        \n        allShowtimes.push({\n          time: heure,\n          rawTime: s.startsAt,\n          isVost: s.diffusionVersion === \"ORIGINAL\",\n          isPreview: !!s.isPreview\n        });\n      });\n    }\n  });\n\n  if (allShowtimes.length === 0) return null;\n  allShowtimes.sort((a, b) => a.rawTime.localeCompare(b.rawTime));\n\n  return {\n    titre: item.movie?.title?.toUpperCase().replace(/[\"«»]/g, '').trim() || \"FILM INCONNU\",\n    duree: item.movie?.runtime || 0,\n    horaires: allShowtimes\n  };\n}).filter(film => film !== null);\n\nreturn [{ json: { cinema: nomDuCinema, films: simplifiedData } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        320
+      ],
+      "id": "6f70dc8f-2cfe-405d-bea9-264fc7922b2e",
+      "name": "Simplify Vox JSON"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.VoxURL }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        384,
+        192
+      ],
+      "id": "0d956d2c-a1b6-41fc-8c86-5be74996f6e8",
+      "name": "Vox Request"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.StarUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        560,
+        192
+      ],
+      "id": "5571aa16-651f-4846-b4dd-75c3edaabd37",
+      "name": "Star Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst nomDuCinema = \"Star\";\nconst now = new Date();\n\nconst simplifiedData = results.map(item => {\n  const st = item.showtimes;\n  if (!st) return null;\n\n  let allShowtimes = [];\n\n  Object.keys(st).forEach(key => {\n    const list = st[key];\n    if (Array.isArray(list)) {\n      list.forEach(s => {\n        const date = new Date(s.startsAt);\n        if (date < now) return; \n\n        const heure = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });\n        \n        allShowtimes.push({\n          time: heure,\n          rawTime: s.startsAt,\n          isVost: s.diffusionVersion === \"ORIGINAL\",\n          isPreview: !!s.isPreview\n        });\n      });\n    }\n  });\n\n  if (allShowtimes.length === 0) return null;\n  allShowtimes.sort((a, b) => a.rawTime.localeCompare(b.rawTime));\n\n  return {\n    titre: item.movie?.title?.toUpperCase().replace(/[\"«»]/g, '').trim() || \"FILM INCONNU\",\n    duree: item.movie?.runtime || 0,\n    horaires: allShowtimes\n  };\n}).filter(film => film !== null);\n\nreturn [{ json: { cinema: nomDuCinema, films: simplifiedData } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        320
+      ],
+      "id": "82b8bf8a-ad71-4de8-ba75-63b3ccd90067",
+      "name": "Simplify Star JSON"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.StarSEUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        736,
+        192
+      ],
+      "id": "015434d4-38d7-4c4c-a661-f5f5a75f7b05",
+      "name": "Star SE Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst nomDuCinema = \"Star SE\";\nconst now = new Date();\n\nconst simplifiedData = results.map(item => {\n  const st = item.showtimes;\n  if (!st) return null;\n\n  let allShowtimes = [];\n\n  Object.keys(st).forEach(key => {\n    const list = st[key];\n    if (Array.isArray(list)) {\n      list.forEach(s => {\n        const date = new Date(s.startsAt);\n        if (date < now) return; \n\n        const heure = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });\n        \n        allShowtimes.push({\n          time: heure,\n          rawTime: s.startsAt,\n          isVost: s.diffusionVersion === \"ORIGINAL\",\n          isPreview: !!s.isPreview\n        });\n      });\n    }\n  });\n\n  if (allShowtimes.length === 0) return null;\n  allShowtimes.sort((a, b) => a.rawTime.localeCompare(b.rawTime));\n\n  return {\n    titre: item.movie?.title?.toUpperCase().replace(/[\"«»]/g, '').trim() || \"FILM INCONNU\",\n    duree: item.movie?.runtime || 0,\n    horaires: allShowtimes\n  };\n}).filter(film => film !== null);\n\nreturn [{ json: { cinema: nomDuCinema, films: simplifiedData } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        320
+      ],
+      "id": "36fcc43f-8fb6-4a2f-8ed5-389327ba1ce4",
+      "name": "Simplify SE Request"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        992,
+        0
+      ],
+      "id": "0e347e6a-1742-49ed-8780-e2d5c53a3597",
+      "name": "Merge (Append) JSONs"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allInputs = $input.all();\nconst moviesMap = {};\n\nallInputs.forEach(input => {\n  const cinemaName = input.json.cinema;\n  const films = input.json.films || [];\n\n  films.forEach(film => {\n    const title = film.titre;\n    \n    if (!moviesMap[title]) {\n      moviesMap[title] = {\n        titre: title,\n        duree: film.duree,\n        seances: {} \n      };\n    }\n    \n    let key = \"UGC\";\n    if (cinemaName.includes(\"Vox\")) key = \"Vox\";\n    if (cinemaName.includes(\"Cosmos\")) key = \"Le Cosmos\";\n    if (cinemaName.includes(\"Star SE\")) key = \"Star St-Exupéry\";\n    else if (cinemaName.includes(\"Star\")) key = \"Star\";\n\n    // On assigne directement le tableau d'objets horaires\n    moviesMap[title].seances[key] = film.horaires;\n  });\n});\n\n// Tri alphabétique final\nconst sortedMovies = Object.values(moviesMap).sort((a, b) => a.titre.localeCompare(b.titre));\n\nreturn [{ json: { liste_films: sortedMovies } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        272
+      ],
+      "id": "b05edf27-fafe-42f3-a8cd-b9bb824c4580",
+      "name": "Merge JSON by Movie"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        192
+      ],
+      "id": "828e31e8-5d06-4927-a548-12a591b92912",
+      "name": "Fetch Date & Time"
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseUrl = \"https://www.allocine.fr/_/showtimes/theater-P0025/d-\";\nconst formattedDate = $input.first().json['formatted-url']\nreturn [{\n  json: {\n    StarSEUrl: baseUrl + formattedDate\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        64
+      ],
+      "id": "8b6409d2-262e-4bc8-ba9b-3bcd942db653",
+      "name": "Star SE Link Builder"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "yyyy-MM-dd",
+        "outputFieldName": "formatted-url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        320
+      ],
+      "id": "daf52d53-57a7-475b-a870-a32f0d9f01e6",
+      "name": "Formating"
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseUrl = \"https://www.allocine.fr/_/showtimes/theater-P0027/d-\";\nconst formattedDate = $input.first().json['formatted-url']\nreturn [{\n  json: {\n    StarUrl: baseUrl + formattedDate\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        64
+      ],
+      "id": "252f13d3-c437-415d-8a3c-ac5e2d732a6b",
+      "name": "Star Link Builder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseUrl = \"https://www.allocine.fr/_/showtimes/theater-P0600/d-\";\nconst formattedDate = $input.first().json['formatted-url']\nreturn [{\n  json: {\n    VoxURL: baseUrl + formattedDate\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        64
+      ],
+      "id": "9d0af597-3b25-4570-989e-da01313697ee",
+      "name": "Vox Link Builder"
+    },
+    {
+      "parameters": {
+        "content": "## UGC",
+        "height": 464,
+        "width": 166,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "fe65e00e-6133-4458-bc0b-b4570a6b56e8",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Cosmos",
+        "height": 464,
+        "width": 166,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "cf8de48a-c21b-4afb-9389-7feda7da8ae3",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Vox",
+        "height": 464,
+        "width": 166,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "2dad4fc6-1c71-4c5f-8214-ce10b828cec7",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Star",
+        "height": 464,
+        "width": 166,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "430589b0-ff4f-4320-a47d-dd0a61e029cc",
+      "name": "Sticky Note7",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Star SE\n",
+        "height": 464,
+        "width": 166,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "2b1345bc-f6b5-42ba-baa1-248a840bc805",
+      "name": "Sticky Note8",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "api/theater",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        192
+      ],
+      "id": "83dc6889-44dc-4212-a71f-295c7b2ad914",
+      "name": "Webhook",
+      "webhookId": "dff08f5b-2b3a-4a1b-a7a5-0ca4c462dbf5"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        272
+      ],
+      "id": "d8ceaea6-198c-4bc5-a935-a798ecf270df",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        48
+      ],
+      "id": "027705c9-381d-446d-8a7c-e0ced72d0cea",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "connections": {
+    "UGC Link Builder": {
+      "main": [
+        [
+          {
+            "node": "UGC Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cosmos Link Builder": {
+      "main": [
+        [
+          {
+            "node": "Cosmos Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify UGC JSON": {
+      "main": [
+        [
+          {
+            "node": "Merge (Append) JSONs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UGC Request": {
+      "main": [
+        [
+          {
+            "node": "Simplify UGC JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cosmos Request": {
+      "main": [
+        [
+          {
+            "node": "Simplify Cosmos JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Cosmos JSON": {
+      "main": [
+        [
+          {
+            "node": "Merge (Append) JSONs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simplify Vox JSON": {
+      "main": [
+        [
+          {
+            "node": "Merge (Append) JSONs",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Vox Request": {
+      "main": [
+        [
+          {
+            "node": "Simplify Vox JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Star Request": {
+      "main": [
+        [
+          {
+            "node": "Simplify Star JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Star JSON": {
+      "main": [
+        [
+          {
+            "node": "Merge (Append) JSONs",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Star SE Request": {
+      "main": [
+        [
+          {
+            "node": "Simplify SE Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify SE Request": {
+      "main": [
+        [
+          {
+            "node": "Merge (Append) JSONs",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge (Append) JSONs": {
+      "main": [
+        [
+          {
+            "node": "Merge JSON by Movie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge JSON by Movie": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Formating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Star SE Link Builder": {
+      "main": [
+        [
+          {
+            "node": "Star SE Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formating": {
+      "main": [
+        [
+          {
+            "node": "Star SE Link Builder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Star Link Builder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Vox Link Builder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cosmos Link Builder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "UGC Link Builder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Star Link Builder": {
+      "main": [
+        [
+          {
+            "node": "Star Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vox Link Builder": {
+      "main": [
+        [
+          {
+            "node": "Vox Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fetch Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e90d789b48e5e14c97eedc713c1fb8d8fb2d7d72edbf19afa0f391e805bbe63"
+  }
+}
