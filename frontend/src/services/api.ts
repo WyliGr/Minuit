@@ -8,6 +8,7 @@ interface Seance {
 interface Film {
   titre: string;
   duree: string | number;
+  affiche?: string;
   seances: Record<string, Seance[]>;
 }
 
@@ -22,7 +23,7 @@ export async function fetchMovies(): Promise<Film[]> {
     if (!response.ok) {
       throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
     }
-
+ 
     const data = await response.json();
     
     // Handle different API response formats
@@ -32,6 +33,8 @@ export async function fetchMovies(): Promise<Film[]> {
       return data.liste_films;
     } else if (Array.isArray(data) && data.length > 0 && data[0].titre) {
       return data;
+    } else if (Array.isArray(data) && data.length > 0 && data[0].liste_films) {
+      return data[0].liste_films;
     } else {
       throw new Error("Le format JSON reçu de n8n n'est pas reconnu.");
     }
