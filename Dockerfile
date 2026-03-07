@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20-alpine as builder
 
 WORKDIR /app
 
@@ -10,6 +10,10 @@ COPY frontend ./
 
 RUN npm run build
 
-EXPOSE 3000
+FROM nginx:alpine
 
-CMD [ "npm", "run", "preview" ]
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
