@@ -1,7 +1,6 @@
-# Utiliser l'image Node.js standard au lieu d'Alpine
-FROM node:18
+# Stage 1: Build
+FROM node:18 as builder
 
-# Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -14,6 +13,10 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-EXPOSE 4321
+# Stage 2: Runtime
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
 RUN npm install -g http-server
-CMD ["http-server", "dist", "-p", "4321", "--cors"]
+EXPOSE 4321
+CMD ["http-server", "dist", "-p", "4321", "--cors"
