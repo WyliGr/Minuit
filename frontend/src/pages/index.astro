@@ -32,27 +32,43 @@ import '../styles/global.css'
 </head>
 <body class="bg-[#0a0a0a] text-white min-h-screen selection:bg-neutral-800 selection:text-white antialiased">
     <div class="navbar flex flex-row justify-center items-center gap-20 mt-10 border-neutral-800/60 border-b py-8 max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <h1 class="text-3xl font-bold tracking-tight text-white"><a href="/">Minuit.strs</a></h1>
+        <h1 class="text-3xl font-bold tracking-tight text-white">
+            <a href="/">Minuit.strs</a>
+        </h1>
         <ul class="flex flex-row gap-6 mt-2">
             <li><a href="#Home">Home</a></li>
             <li><a href="#About">About</a></li>
             <li><a href="#Theaters">Theaters</a></li>
         </ul>
     </div>
+
     <div class="#Home Hero text-center mt-20">
-        <h1 class="text-5xl font-bold">Stop making theaters<br>schedules a <i class="text-gray-400">painful</i> data</h1>
-        <p class="text-gray-400 text-1xl mt-4">Every movie schedule, form every theater in Strasbourg, all in one place.</p>
+        <h1 class="text-5xl font-bold">
+            Stop making theaters<br>
+            schedules a <i class="text-gray-400">painful</i> data
+        </h1>
+        <p class="text-gray-400 text-1xl mt-4">
+            Every movie schedule, form every theater in Strasbourg, all in one place.
+        </p>
         <div class="relative inline-flex items-center justify-center gap-4 group mt-12">
             <div
                 class="absolute inset-0 duration-1000 opacity-60 transitiona-all bg-linear-to-r from-slate-700 to-slate-900 rounded-xl blur-lg filter group-hover:opacity-100 group-hover:duration-200">
             </div>
-            <a role="button" class="group relative inline-flex items-center justify-center text-base rounded-xl bg-slate-200 px-8 py-3 font-semibold text-black transition-all duration-100 hover:bg-slate-200 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-gray-600/30" title="payment" href="/dashboard">
+            <a
+                role="button"
+                class="group relative inline-flex items-center justify-center text-base rounded-xl bg-slate-200 px-8 py-3 font-semibold text-black transition-all duration-100 hover:bg-slate-200 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-gray-600/30"
+                title="payment"
+                href="/dashboard">
                 Look at the schedules
-                <svg aria-hidden="true" viewBox="0 0 10 10" height="10" width="10" fill="none" class="mt-0.5 ml-2 -mr-1 stroke-black stroke-2">
+                <svg
+                    aria-hidden="true"
+                    viewBox="0 0 10 10"
+                    height="10"
+                    width="10"
+                    fill="none"
+                    class="mt-0.5 ml-2 -mr-1 stroke-black stroke-2">
                     <path d="M0 5h7" class="transition opacity-0 group-hover:opacity-100"></path>
-                    <path
-                        d="M1 1l4 4-4 4"
-                        class="transition group-hover:translate-x-[3px]"></path>
+                    <path d="M1 1l4 4-4 4" class="transition group-hover:translate-x-[3px]"></path>
                 </svg>
             </a>
         </div>
@@ -65,9 +81,9 @@ import '../styles/global.css'
                 About the Project
             </h2>
             <p class="text-neutral-400 leading-relaxed">
-                Minuit.strs is a passion project designed to simplify the way you discover movie schedules in Strasbourg. 
-                With multiple theaters scattered across the city, keeping track of showtimes can be overwhelming. 
-                This platform aggregates all movie schedules from every major theater in Strasbourg into one intuitive dashboard, 
+                Minuit.strs is a passion project designed to simplify the way you discover movie schedules in Strasbourg.
+                With multiple theaters scattered across the city, keeping track of showtimes can be overwhelming.
+                This platform aggregates all movie schedules from every major theater in Strasbourg into one intuitive dashboard,
                 making it easier than ever to plan your next cinema visit.
             </p>
         </div>
@@ -85,8 +101,21 @@ import '../styles/global.css'
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700 flex items-center justify-between">
                     <span class="text-neutral-300">Le Vox</span>
-                    <a href="https://www.cine-vox.com" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a
+                        href="https://www.cine-vox.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-white hover:text-gray-300 transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
@@ -95,8 +124,21 @@ import '../styles/global.css'
                 </div>
                 <div class="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700 flex items-center justify-between">
                     <span class="text-neutral-300">UGC Ciné Cité Strasbourg</span>
-                    <a href="https://www.ugc.fr/cinema.html?id=30" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a
+                        href="https://www.ugc.fr/cinema.html?id=30"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-white hover:text-gray-300 transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
@@ -105,8 +147,21 @@ import '../styles/global.css'
                 </div>
                 <div class="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700 flex items-center justify-between">
                     <span class="text-neutral-300">Le Cosmos</span>
-                    <a href="https://www.cinema-cosmos.eu" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a
+                        href="https://www.cinema-cosmos.eu"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-white hover:text-gray-300 transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
@@ -115,8 +170,21 @@ import '../styles/global.css'
                 </div>
                 <div class="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700 flex items-center justify-between">
                     <span class="text-neutral-300">Le Star</span>
-                    <a href="https://www.cinema-star.com" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a
+                        href="https://www.cinema-star.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-white hover:text-gray-300 transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
@@ -125,8 +193,21 @@ import '../styles/global.css'
                 </div>
                 <div class="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700 flex items-center justify-between md:col-span-2">
                     <span class="text-neutral-300">Le Star Saint-Exupéry</span>
-                    <a href="https://www.cinema-star.com/saint-exupery" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a
+                        href="https://www.cinema-star.com/saint-exupery"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-white hover:text-gray-300 transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
@@ -144,20 +225,25 @@ import '../styles/global.css'
                 Why Supporting Cinema
             </h2>
             <p class="text-neutral-400 leading-relaxed">
-                Cinema is more than just entertainment; it's a cultural experience that brings people together. 
-                By supporting local theaters, you contribute to the preservation of film as an art form and help sustain 
-                the vibrant cultural life of Strasbourg. Whether you're a casual moviegoer or a cinephile, 
+                Cinema is more than just entertainment; it's a cultural experience that brings people together.
+                By supporting local theaters, you contribute to the preservation of film as an art form and help sustain
+                the vibrant cultural life of Strasbourg. Whether you're a casual moviegoer or a cinephile,
                 every ticket purchased makes a difference.
             </p>
         </div>
     </div>
 </body>
-<footer class="mt-16 py-8 border-t border-neutral-800/60 text-center text-neutral-500 text-sm ml-100 mr-100">
+<footer class="mt-16 py-8 border-t border-neutral-800/60 text-center text-neutral-500 text-sm max-w-4xl mx-auto px-4 sm:px-6">
         <div class="flex justify-center items-center gap-4">
             <span>© 2026 Minuit.strs - Strasbourg Theater Movie Parser</span>
-            <a href="https://github.com/WyliGr/Minuit-strs" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-white transition-colors">
+            <a
+                href="https://github.com/WyliGr/Minuit-strs"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    <path
+                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
                 <span>Star on GitHub</span>
             </a>
@@ -165,5 +251,5 @@ import '../styles/global.css'
         <div class="mt-2">
             <span>Made with 🖤 by Wyligr</span>
         </div>
-</footer>
+    </footer>
 </html>
