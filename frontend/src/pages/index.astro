@@ -31,16 +31,45 @@ import '../styles/global.css'
     </style>
 </head>
 <body class="bg-[#0a0a0a] text-white min-h-screen selection:bg-neutral-800 selection:text-white antialiased">
-    <div class="navbar flex flex-row justify-center items-center gap-20 mt-10 border-neutral-800/60 border-b py-8 max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <h1 class="text-3xl font-bold tracking-tight text-white">
-            <a href="/">Minuit.strs</a>
-        </h1>
-        <ul class="flex flex-row gap-6 mt-2">
-            <li><a href="#Home">Home</a></li>
-            <li><a href="#About">About</a></li>
-            <li><a href="#Theaters">Theaters</a></li>
-        </ul>
+    <div class="navbar mt-10 border-neutral-800/60 border-b py-8 max-w-4xl mx-auto w-full px-4 sm:px-6">
+        <div class="flex flex-row justify-between items-center">
+            <h1 class="text-3xl font-bold tracking-tight text-white">
+                <a href="/">Minuit.strs</a>
+            </h1>
+            <button id="menu-toggle" class="md:hidden text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <ul id="menu" class="hidden md:flex flex-row gap-6 mt-2 md:mt-0">
+                <li><a href="#Home" class="text-white hover:text-gray-300">Home</a></li>
+                <li><a href="#About" class="text-white hover:text-gray-300">About</a></li>
+                <li><a href="#Theaters" class="text-white hover:text-gray-300">Theaters</a></li>
+            </ul>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuToggle = document.getElementById('menu-toggle');
+            const menu = document.getElementById('menu');
+            
+            menuToggle.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('flex');
+                menu.classList.toggle('flex-col');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-full');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-neutral-900');
+                menu.classList.toggle('p-4');
+                menu.classList.toggle('mt-2');
+            });
+        });
+    </script>
 
     <div class="#Home Hero text-center mt-20">
         <h1 class="text-5xl font-bold">
@@ -234,7 +263,7 @@ import '../styles/global.css'
     </div>
 </body>
 <footer class="mt-16 py-8 border-t border-neutral-800/60 text-center text-neutral-500 text-sm max-w-4xl mx-auto px-4 sm:px-6">
-        <div class="flex justify-center items-center gap-4">
+        <div class="flex flex-col md:flex-row justify-center items-center gap-4 flex-wrap">
             <span>© 2026 Minuit.strs - Strasbourg Theater Movie Parser</span>
             <a
                 href="https://github.com/WyliGr/Minuit-strs"
