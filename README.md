@@ -1,4 +1,4 @@
-# Strasbourg Cinema Movie Parser
+# Strasbourg Cinema Movie Parser 🎬
 
 A modern web application that displays current movie showtimes across multiple cinemas in Strasbourg, France.
 
@@ -8,7 +8,7 @@ A modern web application that displays current movie showtimes across multiple c
 - **Interactive filtering**: Filter by cinema, VOST only, or hide past showtimes
 - **Search functionality**: Quickly find movies by title
 - **Responsive design**: Works on mobile and desktop devices
-- **Live clock**: Shows current time and automatically updates showtime status
+- **Live clock** ⏰: Shows current time and automatically updates showtime status
 
 ## Cinemas Covered
 
@@ -200,4 +200,4 @@ This project is licensed under the "Good luck with that" license. Use at your ow
 
 ---
 
-**Strasbourg Cinema Movie Parser** - Your guide to Strasbourg's cinema scene! 🎬🍿
+**Strasbourg Cinema Movie Parser** - Your guide to Strasbourg's cinema scene! 🍿
