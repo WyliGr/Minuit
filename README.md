@@ -10,7 +10,7 @@ Beacause there is a lot of différents theaters, there is a lot of movies schedu
 
 > [!NOTE]
 > You can find my instance of minuit running there : 
-> https://cinema.wyliam.fr
+> https://minuit.wyliam.fr
 
 ### How it's made ?
 This project is forked from another project of mine, the *Strasbourg Theater Movie Parser*. An n8n workflow that typically does the same but the data was sent by discord. 
