@@ -9,7 +9,15 @@ import Filters from '../components/Filters.astro';
 
 import '../styles/global.css'
 
-let movies = [];
+let movies: Array<{
+  titre: string;
+  duree: string | number;
+  affiche?: string;
+  seances: Record<string, Array<{
+    time: string;
+    isVost: boolean;
+  }>>;
+}> = [];
 let errorMessage = "";
 
 try {

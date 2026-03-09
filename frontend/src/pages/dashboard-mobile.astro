@@ -9,7 +9,15 @@ import FiltersMobile from '../components/FiltersMobile.astro';
 
 import '../styles/global.css'
 
-let movies = [];
+let movies: Array<{
+  titre: string;
+  duree: string | number;
+  affiche?: string;
+  seances: Record<string, Array<{
+    time: string;
+    isVost: boolean;
+  }>>;
+}> = [];
 let errorMessage = "";
 
 try {
@@ -98,7 +106,7 @@ const availableCinemas = ['UGC', 'Vox', 'Le Cosmos', 'Star', 'Star SE'];
           client:load />
     </div>
  
-    <footer class="fixed bottom-0 left-0 right-0 bg-[#0a0a09]/90 backdrop-blur-xl border-t border-neutral-800/60 py-4 text-center text-neutral-500 text-xs">
+    <footer class="mt-16 py-8 border-t border-neutral-800/60 text-center text-neutral-500 text-xs">
         <div class="flex justify-center items-center gap-4 flex-wrap">
             <span>© 2026 Minuit.strs</span>
             <a href="https://github.com/WyliGr/Minuit-strs" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-white transition-colors">
@@ -108,7 +116,7 @@ const availableCinemas = ['UGC', 'Vox', 'Le Cosmos', 'Star', 'Star SE'];
                 <span>GitHub</span>
             </a>
         </div>
-        <div class="mt-1">
+        <div class="mt-2">
             <span>Made with 🖤 by Wyligr</span>
         </div>
     </footer>

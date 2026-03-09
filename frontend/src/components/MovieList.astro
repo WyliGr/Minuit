@@ -26,7 +26,7 @@ const { movies, activeCinemas, currentMinutes, filterVost, filterPast } = Astro.
       
       <div class="sm:w-1/4 shrink-0">
         {film.affiche ? (
-          <img src={film.affiche} alt={`Affiche de ${film.titre}`} class="w-full max-w-[120px] h-auto rounded-md mb-2 object-cover aspect-[2/3]" loading="lazy">
+          <img src={film.affiche} alt={`Affiche de ${film.titre}`} class="w-full max-w-[120px] h-auto rounded-md mb-2 object-cover aspect-2/3" loading="lazy">
         ) : (
           <div class="w-full max-w-[120px] h-[180px] bg-neutral-800 rounded-md mb-2 flex items-center justify-center">
             <span class="text-neutral-600 text-xs text-center px-2">Pas d'affiche disponible</span>
