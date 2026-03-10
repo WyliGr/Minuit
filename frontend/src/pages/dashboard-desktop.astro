@@ -109,7 +109,12 @@ const availableCinemas = ['UGC', 'Vox', 'Le Cosmos', 'Star', 'Star SE'];
           filterPast={false} 
           client:load />
     </div>
- 
+    
+    <div id="poster-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl z-10">×</button>
+        <img id="modal-image" src="" alt="Affiche en grand format" class="max-h-[90vh] max-w-full rounded-lg shadow-2xl">
+    </div>
+
     <footer class="mt-16 py-8 border-t border-neutral-800/60 text-center text-neutral-500 text-sm">
         <div class="flex justify-center items-center gap-4 flex-wrap">
             <span>© 2026 Minuit.strs - Strasbourg Theater Movie Parser</span>
@@ -140,8 +145,11 @@ const availableCinemas = ['UGC', 'Vox', 'Le Cosmos', 'Star', 'Star SE'];
             const cinemaBtns = document.querySelectorAll<HTMLButtonElement>('.cinema-btn');
             const emptyState = document.getElementById('empty-state') as HTMLElement | null;
             const scrollToTopBtn = document.getElementById('scroll-to-top') as HTMLElement | null;
-              
-            if (!searchInput || !filterVost || !filterPast || !resetBtn || !clockEl || !emptyState) return;
+            const modal = document.getElementById('poster-modal') as HTMLElement | null;
+            const modalImage = document.getElementById('modal-image') as HTMLImageElement | null;
+            const closeModal = document.getElementById('close-modal') as HTMLElement | null;
+               
+            if (!searchInput || !filterVost || !filterPast || !resetBtn || !clockEl || !emptyState || !modal || !modalImage || !closeModal) return;
   
             let activeCinemas = new Set(Array.from(cinemaBtns).map(btn => btn.dataset.cinemaTarget!));
             let currentMinutes = 0;
@@ -284,6 +292,29 @@ const availableCinemas = ['UGC', 'Vox', 'Le Cosmos', 'Star', 'Star SE'];
 
             scrollToTopBtn?.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.querySelectorAll('.poster-image').forEach(img => {
+                img.addEventListener('click', () => {
+                    const posterUrl = img.getAttribute('data-poster');
+                    if (posterUrl) {
+                        modalImage.src = posterUrl;
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                });
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
             });
 
             document.addEventListener('keydown', (e) => {
