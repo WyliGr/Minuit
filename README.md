@@ -1,3 +1,5 @@
+![Banner](assets/banner.png)
+
 # Minuit.strs
 > Minuit at Strasbourg, after a good movie at the theater
 
@@ -11,6 +13,8 @@ Beacause there is a lot of différents theaters, there is a lot of movies schedu
 > [!NOTE]
 > You can find my instance of minuit running there : 
 > https://minuit.wyliam.fr
+
+![screenshot](assets/screenshot.png)
 
 ### How it's made ?
 This project is forked from another project of mine, the *Strasbourg Theater Movie Parser*. An n8n workflow that typically does the same but the data was sent by discord. 
@@ -64,4 +68,3 @@ You can now access the Web UI at :
 ├── docker-compose.yml # Docker Compose configuration
 └── README.md # Project documentation
 ```
-
