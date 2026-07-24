@@ -1,5 +1,8 @@
 ---
+import Base from '../layouts/base.astro';
 import Dashboard from '../components/dashboard.tsx';
 ---
 
-<Dashboard client:load />
+<Base>
+  <Dashboard client:only="react" />
+</Base>
