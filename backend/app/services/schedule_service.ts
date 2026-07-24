@@ -38,8 +38,26 @@ function isStale(lastFetchedAt: DateTime, now: DateTime): boolean {
 function rewritePosterUrls(films: FilmEntry[]): FilmEntry[] {
   return films.map((film) => ({
     ...film,
+    // Tolerate rows cached before the posterUrl field existed — `film.posterUrl`
+    // is `undefined` rather than `null` in that case.
     posterUrl: film.posterUrl ? `/api/v1/poster?url=${encodeURIComponent(film.posterUrl)}` : null,
   }))
+}
+
+function normalizeFilms(films: unknown): FilmEntry[] {
+  // Defensive: when a cached payload predates a schema field, fill in
+  // nulls instead of leaving `undefined` (which becomes a missing key in
+  // the JSON response and breaks clients that expect the field).
+  if (!Array.isArray(films)) return []
+  return films.map((raw) => {
+    const f = raw as Partial<FilmEntry>
+    return {
+      title: f.title ?? 'FILM INCONNU',
+      runtime: typeof f.runtime === 'number' ? f.runtime : 0,
+      posterUrl: f.posterUrl ?? null,
+      showtimes: Array.isArray(f.showtimes) ? f.showtimes : [],
+    }
+  })
 }
 
 export function parseDaysParam(days: string | number | undefined): number[] {
@@ -53,26 +71,41 @@ export function parseDaysParam(days: string | number | undefined): number[] {
 }
 
 export default class ScheduleService {
-  async getSchedules(dayOffsets: number[]): Promise<SchedulesResponse | SchedulesRangeResponse> {
+  async getSchedules(
+    dayOffsets: number[],
+    options: { fresh?: boolean } = {}
+  ): Promise<SchedulesResponse | SchedulesRangeResponse> {
     if (dayOffsets.length === 1) {
-      return this.getSchedulesForDay(dayOffsets[0]!)
+      return this.getSchedulesForDay(dayOffsets[0]!, options)
     }
-    return this.getSchedulesRange(dayOffsets)
+    return this.getSchedulesRange(dayOffsets, options)
   }
 
-  async getSchedulesForDay(dayOffset: number): Promise<SchedulesResponse> {
+  async getSchedulesForDay(
+    dayOffset: number,
+    options: { fresh?: boolean } = {}
+  ): Promise<SchedulesResponse> {
     const now = DateTime.now()
-    const day = await this.resolveDay(dayOffset, now)
+    const day = await this.resolveDay(dayOffset, now, options)
     return day
   }
 
-  async getSchedulesRange(dayOffsets: number[]): Promise<SchedulesRangeResponse> {
+  async getSchedulesRange(
+    dayOffsets: number[],
+    options: { fresh?: boolean } = {}
+  ): Promise<SchedulesRangeResponse> {
     const now = DateTime.now()
-    const days = await Promise.all(dayOffsets.map((offset) => this.resolveDay(offset, now)))
+    const days = await Promise.all(
+      dayOffsets.map((offset) => this.resolveDay(offset, now, options))
+    )
     return { days }
   }
 
-  private async resolveDay(dayOffset: number, now: DateTime): Promise<DaySchedules> {
+  private async resolveDay(
+    dayOffset: number,
+    now: DateTime,
+    options: { fresh?: boolean } = {}
+  ): Promise<DaySchedules> {
     const target = now.plus({ days: dayOffset })
     const formattedDate = target.toISODate()!
     const displayDate = target.setLocale('fr-FR').toLocaleString({
@@ -84,7 +117,9 @@ export default class ScheduleService {
     const theaters = await Theater.query().where('is_active', true).orderBy('id', 'asc')
 
     const slices = await Promise.all(
-      theaters.map((theater) => this.resolveSlice(theater, formattedDate, target.toISO()!, now))
+      theaters.map((theater) =>
+        this.resolveSlice(theater, formattedDate, target.toISO()!, now, options)
+      )
     )
 
     return {
@@ -100,19 +135,20 @@ export default class ScheduleService {
     theater: Theater,
     formattedDate: string,
     targetIso: string,
-    now: DateTime
+    now: DateTime,
+    options: { fresh?: boolean } = {}
   ): Promise<TheaterSlice> {
     const existing = await Schedule.query()
       .where('theater_id', theater.id)
       .where('date', formattedDate)
       .first()
 
-    if (existing && !isStale(existing.lastFetchedAt, now)) {
+    if (existing && !options.fresh && !isStale(existing.lastFetchedAt, now)) {
       return {
         slug: theater.slug,
         name: theater.name,
         lastFetchedAt: existing.lastFetchedAt.toISO()!,
-        films: rewritePosterUrls(existing.payload.films),
+        films: rewritePosterUrls(normalizeFilms(existing.payload.films)),
       }
     }
 
