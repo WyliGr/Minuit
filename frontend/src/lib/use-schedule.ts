@@ -46,7 +46,11 @@ export function useSchedule() {
     fetchTheaters()
       .then((r) => {
         if (cancelled) return;
-        setTheaters(r.theaters);
+        // Defensive: backend should already filter to active, but coerce
+        // isActive (SQLite returns 0/1) and filter just in case.
+        setTheaters(
+          r.theaters.filter((t) => Boolean(t.isActive)),
+        );
         setTheatersStatus('success');
       })
       .catch((e: unknown) => {

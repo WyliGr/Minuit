@@ -6,7 +6,8 @@
 export interface TheaterListItem {
   slug: string;
   name: string;
-  isActive: boolean;
+  /** SQLite returns 0/1 integer; docs say boolean. Accept both. */
+  isActive: boolean | number;
 }
 
 export interface TheatersResponse {
