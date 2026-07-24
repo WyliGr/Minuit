@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
   "dependencies": {
     "@astrojs/react": "^6.0.1",
     "@astryxdesign/cli": "^0.1.8",

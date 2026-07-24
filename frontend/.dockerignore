@@ -1,0 +1,10 @@
+node_modules
+dist
+.astro
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.env
+.env.local
+.git
+.gitignore

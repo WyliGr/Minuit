@@ -21,6 +21,17 @@ services:
       - minuit-db:/app/database
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: minuit-frontend
+    ports:
+      - "4321:4321"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   swagger:
     image: swaggerapi/swagger-ui:latest
     container_name: minuit-swagger
