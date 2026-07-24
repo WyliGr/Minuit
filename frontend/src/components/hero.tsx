@@ -19,7 +19,7 @@ export function Hero({ day, stats }: HeroProps) {
           <div>
             <div className="mn-hero-eyebrow">
               <span className="mn-hero-eyebrow-bar" aria-hidden="true" />
-              <span>Strasbourg</span>
+              <span>Chargement</span>
             </div>
             <h1 className="mn-hero-date">Minuit</h1>
             <p className="mn-hero-date-num" aria-hidden="true">
@@ -40,7 +40,7 @@ export function Hero({ day, stats }: HeroProps) {
         <div>
           <div className="mn-hero-eyebrow">
             <span className="mn-hero-eyebrow-bar" aria-hidden="true" />
-            <span>Cinémas · Strasbourg</span>
+            <span>Séances en salle</span>
           </div>
           <h1 className="mn-hero-date">
             {dayName.charAt(0).toUpperCase() + dayName.slice(1)}

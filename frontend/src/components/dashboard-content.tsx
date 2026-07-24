@@ -104,7 +104,7 @@ export function DashboardContent() {
             Données Allocine · cache 6h · {theaters.length} salle
             {theaters.length > 1 ? 's' : ''}
           </span>
-          <span>Minuit · Strasbourg</span>
+          <span>Minuit</span>
         </div>
       </footer>
     </div>

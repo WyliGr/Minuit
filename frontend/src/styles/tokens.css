@@ -3,7 +3,7 @@
    Single source of truth. Every component reads from these variables.
    No raw hex values are allowed in component styles.
 
-   Palette: warm-neutral dark, single green accent. Inspired by Linear /
+   Palette: warm-neutral dark, single cyan accent. Inspired by Linear /
    Vercel / GitHub Premier. Built for a 6h-cache read-only product.
    ───────────────────────────────────────────────────────────────────── */
 
@@ -12,7 +12,7 @@
 
   /* ── Color ───────────────────────────────────────────────────────────
      Three base surfaces + one accent + one text ramp.
-     All neutrals are desaturated (H ≈ 40, S ≈ 4%) so the green accent
+     All neutrals are desaturated (H ≈ 40, S ≈ 4%) so the cyan accent
      reads as the only color in the room. */
   --color-bg:           #090909;   /* page */
   --color-surface:      #111111;   /* raised */
@@ -26,9 +26,9 @@
   --color-text-2:       #a8a8a8;   /* secondary */
   --color-text-3:       #6b6b6b;   /* tertiary / labels */
 
-  --color-accent:       #22c55e;   /* the one accent */
-  --color-accent-dim:   #16a34a;   /* pressed */
-  --color-accent-soft:  #22c55e14; /* wash, ~8% alpha */
+  --color-accent:       #06b6d4;   /* the one accent */
+  --color-accent-dim:   #0891b2;   /* pressed */
+  --color-accent-soft:  #06b6d414; /* wash, ~8% alpha */
 
   --color-past:         #4a4a4a;   /* disabled / past showtime */
 
