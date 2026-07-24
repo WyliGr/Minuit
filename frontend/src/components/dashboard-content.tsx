@@ -101,8 +101,21 @@ export function DashboardContent() {
       <footer className="mn-footer mn-container">
         <div className="mn-footer-row">
           <span>
-            Données Allocine · cache 6h · {theaters.length} salle
-            {theaters.length > 1 ? 's' : ''}
+            Made with{' '}
+            <svg
+              className="mn-footer-heart"
+              viewBox="0 0 16 16"
+              width="12"
+              height="12"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M8 13.6 2.8 8.4a3.2 3.2 0 0 1 4.5-4.5L8 4.6l.7-.7a3.2 3.2 0 0 1 4.5 4.5L8 13.6Z"
+                fill="currentColor"
+              />
+            </svg>{' '}
+            by Wyliam
           </span>
           <span>Minuit</span>
         </div>

@@ -1138,6 +1138,12 @@ body::after {
   color: var(--color-text);
 }
 
+.mn-footer-heart {
+  display: inline-block;
+  vertical-align: -1px;
+  color: var(--color-accent);
+}
+
 /* ── 12. Motion utilities ────────────────────────────────────────────── */
 
 .mn-reveal {
@@ -1174,6 +1180,58 @@ body::after {
 ::view-transition-new(root) {
   animation-duration: 200ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Cursor accent ──────────────────────────────────────────────────────
+   The OS cursor stays. On top of it, a 14px accent dot follows the mouse
+   with a soft lerp — visibly trails the OS cursor, gives the page a
+   weighted feel. On interactive elements, the dot grows into a 56px ring
+   (1px hairline). On motion, the dot stretches along the velocity vector
+   to read as 'momentum'. Disabled on touch / reduced motion. */
+
+.mn-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  pointer-events: none;
+  z-index: var(--z-toast);
+  opacity: 0;
+  /* translate3d is set every frame from JS; do NOT add it to the
+     transition list or it will fight the rAF loop. */
+  transition:
+    width 320ms var(--ease-spring),
+    height 320ms var(--ease-spring),
+    background-color 220ms var(--ease-out),
+    opacity 220ms var(--ease-out),
+    border-color 220ms var(--ease-out);
+  will-change: transform, width, height;
+  mix-blend-mode: difference;
+}
+
+.mn-cursor[data-state='idle'] {
+  opacity: 1;
+}
+
+.mn-cursor[data-state='hover'] {
+  width: 56px;
+  height: 56px;
+  background: transparent;
+  border: 1px solid var(--color-accent);
+}
+
+.mn-cursor[data-state='press'] {
+  width: 40px;
+  height: 40px;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .mn-cursor {
+    display: none;
+  }
 }
 
 /* ── 13. Responsive overrides ────────────────────────────────────────── */

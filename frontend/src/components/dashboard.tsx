@@ -1,5 +1,11 @@
+import { Cursor } from './cursor';
 import { DashboardContent } from './dashboard-content';
 
 export default function Dashboard() {
-  return <DashboardContent />;
+  return (
+    <>
+      <Cursor />
+      <DashboardContent />
+    </>
+  );
 }
