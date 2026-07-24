@@ -1,88 +1,57 @@
-import { Divider } from '@astryxdesign/core/Divider';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack, StackItem, VStack } from '@astryxdesign/core/Stack';
-import { Text } from '@astryxdesign/core/Text';
-import { ShowtimePill } from './showtime-pill';
 import type { TheaterSlice } from '../lib/types';
-import { formatRuntime, groupByMovie } from '../lib/schedule';
+import { formatRuntime, groupByMovie, isPast } from '../lib/schedule';
 
 interface ByMovieViewProps {
   theaters: TheaterSlice[];
-  /** Slugs of theaters the user has selected (empty = all). */
-  selectedSlugs: Set<string>;
   now: Date;
 }
 
-export function ByMovieView({ theaters, selectedSlugs, now }: ByMovieViewProps) {
-  const filtered = filterTheaters(theaters, selectedSlugs);
-  const groups = groupByMovie(filtered);
+export function ByMovieView({ theaters, now }: ByMovieViewProps) {
+  const groups = groupByMovie(theaters);
 
-  if (groups.length === 0) {
-    return null;
-  }
+  if (groups.length === 0) return null;
 
   return (
-    <>
-      {groups.map((g, idx) => {
-        const totalShows = g.venues.reduce((n, v) => n + v.showtimes.length, 0);
+    <div>
+      {groups.map((g) => {
+        const totalShows = g.venues.reduce(
+          (n, v) => n + v.showtimes.length,
+          0,
+        );
         return (
-          <VStack key={g.title} gap={3} paddingBlock={5} paddingInline={6}>
-            {idx > 0 && <Divider variant="subtle" isFullBleed />}
-            <HStack hAlign="between" vAlign="center" wrap="wrap" gap={2}>
-              <StackItem size="fill">
-                <Heading level={3} color="primary" maxLines={2}>
-                  {g.title}
-                </Heading>
-              </StackItem>
-              <HStack gap={2} vAlign="center">
-                <Text type="supporting" hasTabularNumbers>
-                  {formatRuntime(g.runtime)}
-                </Text>
-                <Text type="supporting">·</Text>
-                <Text type="supporting" hasTabularNumbers>
-                  {totalShows} {totalShows > 1 ? 'séances' : 'séance'}
-                </Text>
-              </HStack>
-            </HStack>
-            <VStack gap={2}>
-              {g.venues.map((v) => (
-                <HStack
-                  key={v.slug}
-                  gap={4}
-                  vAlign="center"
-                  wrap="wrap"
-                  hAlign="start"
-                >
-                  <StackItem size="static">
-                    <Text type="label" color="secondary" weight="medium">
-                      {v.name}
-                    </Text>
-                  </StackItem>
-                  <StackItem size="fill">
-                    <HStack gap={1} wrap="wrap" vAlign="center">
-                      {v.showtimes.map((s) => (
-                        <ShowtimePill
-                          key={s.startsAt}
-                          showtime={s}
-                          now={now}
-                        />
-                      ))}
-                    </HStack>
-                  </StackItem>
-                </HStack>
-              ))}
-            </VStack>
-          </VStack>
+          <section key={g.title} className="minuit-film">
+            <div className="minuit-film-header">
+              <h2 className="minuit-film-title">{g.title}</h2>
+              <span className="minuit-film-runtime">
+                {formatRuntime(g.runtime)} · {totalShows}{' '}
+                {totalShows > 1 ? 'séances' : 'séance'}
+              </span>
+            </div>
+            {g.venues.map((v) => (
+              <div key={v.slug} className="minuit-venue">
+                <span className="minuit-venue-name">{v.name}</span>
+                <div className="minuit-showtimes">
+                  {v.showtimes.map((s) => (
+                    <a
+                      key={s.startsAt}
+                      className="minuit-showtime"
+                      data-past={isPast(s.startsAt, now)}
+                      href={`#showtime-${s.startsAt}`}
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      {s.time}
+                      {s.isVost && <span className="minuit-showtime-flag">VOST</span>}
+                      {s.isPreview && (
+                        <span className="minuit-showtime-flag">AVANT</span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
         );
       })}
-    </>
+    </div>
   );
-}
-
-function filterTheaters(
-  theaters: TheaterSlice[],
-  selected: Set<string>,
-): TheaterSlice[] {
-  if (selected.size === 0) return theaters;
-  return theaters.filter((t) => selected.has(t.slug));
 }

@@ -2,28 +2,33 @@ import { defineTheme } from '@astryxdesign/core/theme';
 import { neutralTheme } from '@astryxdesign/theme-neutral';
 
 /**
- * Minuit theme — neutral base, dark-only, with #0f0f10 body background.
+ * Minuit theme — cinematic dark with warm amber accent.
  *
- * Per Astryx rules: brand/accent via `defineTheme`, never override
- * --color-* in :root. We extend neutralTheme and override only the
- * surface tokens needed for the strict #0f0f10 dark aesthetic.
- *
- * Color token overrides use [light, dark] arrays. Since this app is
- * dark-only (we set <Theme mode="dark">), the dark value is what ships.
+ * The cinema at midnight: deep black surfaces, warm gold accent
+ * (#F5C518) like projector light cutting through darkness.
+ * Extends neutralTheme; overrides only what the aesthetic needs.
  */
 export const minuitTheme = defineTheme({
   name: 'minuit',
   extends: neutralTheme,
+  color: { accent: '#F5C518' },
   tokens: {
-    // Primary application background — the spec's exact #0f0f10.
-    '--color-background-body': ['#f1f4f7', '#0f0f10'],
-    // Surface sits one step above body. Lift slightly off #0f0f10.
-    '--color-background-surface': ['#ffffff', '#161617'],
-    // Card sits above surface.
-    '--color-background-card': ['#ffffff', '#1b1b1d'],
-    // Popover (menus, dropdowns) above card.
-    '--color-background-popover': ['#ffffff', '#222224'],
-    // Muted background for toolbar strips and hover washes.
-    '--color-background-muted': ['#0536590c', '#0f0f1080'],
+    // Accent: warm cinema gold (light, dark)
+    '--color-accent': ['#E6B400', '#F5C518'],
+    '--color-accent-muted': ['#F5C51833', '#F5C51826'],
+    '--color-text-accent': ['#996B00', '#F5C518'],
+    '--color-icon-accent': ['#E6B400', '#F5C518'],
+    // Deep black surface hierarchy
+    '--color-background-body': ['#f1f4f7', '#0a0a0b'],
+    '--color-background-surface': ['#ffffff', '#131316'],
+    '--color-background-card': ['#ffffff', '#18181c'],
+    '--color-background-popover': ['#ffffff', '#1e1e24'],
+    '--color-background-muted': ['#0536590c', '#0a0a0b80'],
+    // Text: near-white primary, soft grey secondary
+    '--color-text-primary': ['#0a1317', '#f0f0f2'],
+    '--color-text-secondary': ['#4e606f', '#8a8a93'],
+    // Borders: very subtle on black
+    '--color-border': ['#05365919', '#ffffff0a'],
+    '--color-border-emphasized': ['#ccd3db', '#ffffff1a'],
   },
 });

@@ -1,8 +1,9 @@
-/* Minuit global styles.
- * The #0f0f10 background is set here on <html>/<body> directly so it
- * shows before the Astryx <Theme> provider hydrates (no white flash).
- * Everything else uses Astryx tokens (var(--color-*|--spacing-*|--radius-*)).
+/* Minuit — cinematic dark dashboard.
+ * Custom styles use Astryx tokens (var(--color-*|--spacing-*|--radius-*)).
+ * These classes extend Astryx components via className; they don't
+ * replace them. Data-attribute selectors target component variants.
  */
+
 :root {
   color-scheme: dark;
 }
@@ -12,10 +13,479 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #0f0f10;
-  color: var(--color-text-primary, #dfe2e5);
+  background-color: #0a0a0b;
+  color: var(--color-text-primary, #f0f0f2);
   font-family: var(--font-family-body, -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Cinematic header ─────────────────────────────────────────────── */
+
+.minuit-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #0a0a0b 0%, #0a0a0bf2 80%, #0a0a0b00 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.minuit-wordmark {
+  font-weight: var(--font-weight-bold, 700);
+  font-size: var(--font-size-2xl, 1.5rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1;
+}
+
+.minuit-wordmark-accent {
+  color: var(--color-accent);
+}
+
+/* ── Day strip ────────────────────────────────────────────────────── */
+
+.minuit-day-strip {
+  display: flex;
+  gap: var(--spacing-1, 4px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--spacing-1, 4px) 0;
+}
+.minuit-day-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.minuit-day-chip {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  border-radius: var(--radius-element, 8px);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast, 175ms) var(--ease-standard, cubic-bezier(0.24, 1, 0.4, 1));
+  min-width: 64px;
+}
+.minuit-day-chip:hover {
+  border-color: var(--color-border-emphasized);
+  color: var(--color-text-primary);
+}
+.minuit-day-chip[data-selected="true"] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #0a0a0b;
+}
+.minuit-day-chip-label {
+  font-size: var(--font-size-2xs, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: var(--font-weight-medium, 500);
+  opacity: 0.8;
+}
+.minuit-day-chip[data-selected="true"] .minuit-day-chip-label {
+  opacity: 0.7;
+}
+.minuit-day-chip-day {
+  font-size: var(--font-size-base, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+}
+.minuit-day-chip[data-selected="true"] .minuit-day-chip-day {
+  font-weight: var(--font-weight-bold, 700);
+}
+
+/* ── Theater filter pills ─────────────────────────────────────────── */
+
+.minuit-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  flex-wrap: wrap;
+}
+
+.minuit-theater-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1, 4px) var(--spacing-3, 12px);
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all var(--duration-fast, 175ms) var(--ease-standard, cubic-bezier(0.24, 1, 0.4, 1));
+  white-space: nowrap;
+}
+.minuit-theater-pill:hover {
+  border-color: var(--color-border-emphasized);
+  color: var(--color-text-primary);
+}
+.minuit-theater-pill[data-selected="true"] {
+  background: var(--color-accent-muted);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ── View toggle ──────────────────────────────────────────────────── */
+
+.minuit-view-toggle {
+  display: inline-flex;
+  border-radius: var(--radius-element, 8px);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+.minuit-view-toggle-btn {
+  padding: var(--spacing-1, 4px) var(--spacing-3, 12px);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all var(--duration-fast, 175ms) var(--ease-standard, cubic-bezier(0.24, 1, 0.4, 1));
+}
+.minuit-view-toggle-btn:hover {
+  color: var(--color-text-primary);
+}
+.minuit-view-toggle-btn[data-selected="true"] {
+  background: var(--color-background-muted);
+  color: var(--color-text-primary);
+}
+
+/* ── Stats bar ────────────────────────────────────────────────────── */
+
+.minuit-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3, 12px);
+  font-size: var(--font-size-sm, 0.75rem);
+  color: var(--color-text-secondary);
+}
+.minuit-stat-number {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+}
+.minuit-stat-separator {
+  opacity: 0.3;
+}
+
+/* ── Film section (By Movie view) ─────────────────────────────────── */
+
+.minuit-film {
+  padding: var(--spacing-6, 24px) var(--spacing-6, 24px);
+  border-bottom: 1px solid var(--color-border);
+}
+.minuit-film:last-child {
+  border-bottom: none;
+}
+.minuit-film-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4, 16px);
+  margin-bottom: var(--spacing-4, 16px);
+}
+.minuit-film-title {
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  margin: 0;
+}
+.minuit-film-runtime {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm, 0.75rem);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+  border-radius: var(--radius-element, 8px);
+  background: var(--color-background-muted);
+  white-space: nowrap;
+}
+
+/* ── Venue row (theater + showtimes within a film) ────────────────── */
+
+.minuit-venue {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4, 16px);
+  padding: var(--spacing-2, 8px) 0;
+}
+.minuit-venue-name {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary);
+  min-width: 140px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.minuit-showtimes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1, 4px);
+}
+
+/* ── Showtime pill ────────────────────────────────────────────────── */
+
+.minuit-showtime {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+  border-radius: var(--radius-element, 8px);
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent-muted);
+  color: var(--color-accent);
+  font-size: var(--font-size-sm, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: all var(--duration-fast, 175ms) var(--ease-standard, cubic-bezier(0.24, 1, 0.4, 1));
+  text-decoration: none;
+  white-space: nowrap;
+}
+.minuit-showtime:hover {
+  background: var(--color-accent);
+  color: #0a0a0b;
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px var(--color-accent-muted);
+}
+.minuit-showtime[data-past="true"] {
+  border-color: var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  opacity: 0.4;
+}
+.minuit-showtime[data-past="true"]:hover {
+  background: transparent;
+  color: var(--color-text-secondary);
+  transform: none;
+  box-shadow: none;
+}
+.minuit-showtime-flag {
+  font-size: var(--font-size-2xs, 0.5rem);
+  font-weight: var(--font-weight-bold, 700);
+  letter-spacing: 0.04em;
+  margin-left: var(--spacing-1, 4px);
+  padding: 1px var(--spacing-1, 4px);
+  border-radius: var(--radius-inner, 4px);
+  background: rgba(255, 255, 255, 0.1);
+}
+.minuit-showtime[data-past="true"] .minuit-showtime-flag {
+  display: none;
+}
+
+/* ── By Time view ─────────────────────────────────────────────────── */
+
+.minuit-time-hour {
+  display: flex;
+  gap: var(--spacing-4, 16px);
+  padding: var(--spacing-3, 12px) var(--spacing-6, 24px);
+  border-bottom: 1px solid var(--color-border);
+}
+.minuit-time-hour:last-child {
+  border-bottom: none;
+}
+.minuit-time-hour-label {
+  flex-shrink: 0;
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-secondary);
+  opacity: 0.4;
+  font-variant-numeric: tabular-nums;
+  min-width: 60px;
+  line-height: 1;
+  padding-top: 2px;
+}
+.minuit-time-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 4px);
+}
+.minuit-time-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3, 12px);
+  padding: var(--spacing-1, 4px) 0;
+}
+.minuit-time-time {
+  flex-shrink: 0;
+  font-size: var(--font-size-base, 0.875rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+}
+.minuit-time-row[data-past="true"] .minuit-time-time {
+  color: var(--color-text-secondary);
+  opacity: 0.4;
+}
+.minuit-time-title {
+  flex: 1;
+  font-size: var(--font-size-base, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.minuit-time-row[data-past="true"] .minuit-time-title {
+  color: var(--color-text-secondary);
+  opacity: 0.4;
+}
+.minuit-time-theater {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm, 0.75rem);
+  color: var(--color-text-secondary);
+}
+
+/* ── Skeleton loaders ─────────────────────────────────────────────── */
+
+.minuit-skeleton-film {
+  padding: var(--spacing-6, 24px);
+  border-bottom: 1px solid var(--color-border);
+}
+.minuit-skeleton-line {
+  border-radius: var(--radius-inner, 4px);
+  background: var(--color-skeleton, #2a2a2e);
+  animation: minuit-shimmer 1.8s infinite ease-in-out;
+}
+.minuit-skeleton-line:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.minuit-skeleton-line:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes minuit-shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Empty / error states ─────────────────────────────────────────── */
+
+.minuit-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-10, 40px) var(--spacing-6, 24px);
+  gap: var(--spacing-3, 12px);
+}
+.minuit-empty-title {
+  font-size: var(--font-size-lg, 1.0625rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.minuit-empty-desc {
+  font-size: var(--font-size-sm, 0.75rem);
+  color: var(--color-text-secondary);
+  max-width: 360px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.minuit-error {
+  margin: var(--spacing-6, 24px);
+  padding: var(--spacing-5, 20px);
+  border-radius: var(--radius-container, 12px);
+  border: 1px solid var(--color-error-muted, #f5394f3f);
+  background: var(--color-error-muted, #f5394f3f);
+}
+.minuit-error-title {
+  font-size: var(--font-size-base, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-error, #f5394f);
+  margin: 0 0 var(--spacing-2, 8px) 0;
+}
+.minuit-error-desc {
+  font-size: var(--font-size-sm, 0.75rem);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.minuit-error-retry {
+  margin-top: var(--spacing-3, 12px);
+  padding: var(--spacing-1, 4px) var(--spacing-3, 12px);
+  border-radius: var(--radius-element, 8px);
+  border: 1px solid var(--color-error, #f5394f);
+  background: transparent;
+  color: var(--color-error, #f5394f);
+  font-size: var(--font-size-sm, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all var(--duration-fast, 175ms) var(--ease-standard, cubic-bezier(0.24, 1, 0.4, 1));
+}
+.minuit-error-retry:hover {
+  background: var(--color-error, #f5394f);
+  color: #0a0a0b;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+
+.minuit-footer {
+  padding: var(--spacing-4, 16px) var(--spacing-6, 24px);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-2xs, 0.5rem);
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+}
+
+/* ── Freshness indicator ──────────────────────────────────────────── */
+
+.minuit-freshness {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1, 4px);
+  font-size: var(--font-size-2xs, 0.5rem);
+  color: var(--color-text-secondary);
+}
+.minuit-freshness-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success, #0d8626);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-emphasized, #ffffff1a);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary, #8a8a93);
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
