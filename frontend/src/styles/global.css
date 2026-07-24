@@ -95,6 +95,52 @@ body {
   overflow-x: hidden;
 }
 
+/* ── Background treatment ─────────────────────────────────────────────
+   Two fixed, pointer-events-none layers under the content:
+   1. Hairline grid (48px) — 'technical' texture, never animates.
+   2. Very fine noise (~2.5% opacity) — removes flatness, never visible
+      on dark surfaces unless you look for it.
+   3. Top radial vignette in the warm-neutral family — gives the hero
+      a slight 'ceiling', brightest at the very top.
+   All three live on body::before / body::after. No scroll repaints. */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--bg-noise);
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  opacity: var(--bg-noise-opacity);
+  mix-blend-mode: screen;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--bg-grid);
+  background-size: var(--bg-grid-size);
+  background-position: 0 0;
+  opacity: var(--bg-grid-opacity);
+  mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 0%,
+    #000 0%,
+    #000 40%,
+    transparent 85%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 0%,
+    #000 0%,
+    #000 40%,
+    transparent 85%
+  );
+}
+
 ::selection {
   background: var(--color-accent);
   color: var(--color-bg);
