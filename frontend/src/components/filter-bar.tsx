@@ -22,17 +22,20 @@ export function FilterBar({ theaters, selected, onChange }: FilterBarProps) {
   return (
     <div className="mn-filters" role="group" aria-label="Salles">
       <button
+        type="button"
         className="mn-theater-pill"
         data-selected={allSelected}
         onClick={() => onChange(new Set())}
       >
-        Toutes les salles
+        Toutes
       </button>
       {theaters.map((t) => (
         <button
           key={t.slug}
+          type="button"
           className="mn-theater-pill"
           data-selected={selected.has(t.slug)}
+          aria-pressed={selected.has(t.slug)}
           onClick={() => toggle(t.slug)}
         >
           {t.name}

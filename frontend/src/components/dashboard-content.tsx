@@ -3,11 +3,10 @@ import { useSchedule } from '../lib/use-schedule';
 import {
   countAllShowtimes,
   countDistinctFilms,
-  formatFreshness,
 } from '../lib/schedule';
-import { DayStrip } from './day-strip';
-import { FilterBar } from './filter-bar';
-import { ViewToggle } from './view-toggle';
+import { Nav } from './nav';
+import { Hero } from './hero';
+import { Controls } from './controls';
 import { ByMovieView } from './by-movie-view';
 import { ByTimeView } from './by-time-view';
 import { ScheduleSkeleton } from './skeletons';
@@ -26,9 +25,6 @@ export function DashboardContent() {
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => new Date());
 
-  // Reveal-on-scroll for the content region. Re-runs when view/day change
-  // so newly-mounted sections animate in. Reduced-motion safe (the hook
-  // checks matchMedia and the CSS forces visible under reduced-motion).
   const contentRef = useRef<HTMLDivElement>(null);
   useScrollReveal(contentRef);
 
@@ -52,127 +48,46 @@ export function DashboardContent() {
   }, [day, selectedSlugs]);
 
   const stats = useMemo(() => {
-    if (!day) return { shows: 0, films: 0 };
+    if (!day) return { shows: 0, films: 0, theaters: 0 };
     return {
       shows: countAllShowtimes(filteredTheaters),
       films: countDistinctFilms(filteredTheaters),
+      theaters: filteredTheaters.length,
     };
   }, [day, filteredTheaters]);
 
   const freshest = useMemo(() => {
     if (filteredTheaters.length === 0) return null;
-    return filteredTheaters.reduce((min, t) =>
-      t.lastFetchedAt < min ? t.lastFetchedAt : min,
+    return filteredTheaters.reduce(
+      (min, t) => (t.lastFetchedAt < min ? t.lastFetchedAt : min),
       filteredTheaters[0].lastFetchedAt,
     );
   }, [filteredTheaters]);
 
-  // Split the French displayDate ("vendredi 24 juillet") into a day-name
-  // (italic, brass) and the rest (roman, bone) for the editorial hero.
-  const heroDate = day?.displayDate ?? '';
-  const heroDateParts = heroDate.split(' ');
-  const heroDayName = heroDateParts[0] ?? '';
-  const heroDateRest = heroDateParts.slice(1).join(' ');
-
   return (
     <div className="mn-app">
-      {/* ── Editorial hero band (scrolls away) ─────────────────────── */}
-      <header className="mn-hero mn-container">
-        <div className="mn-hero-top">
-          <div className="mn-wordmark">
-            <span className="mn-wordmark-text">
-              Min<em>u</em>it
-            </span>
-            <span className="mn-wordmark-tag">Strasbourg</span>
-          </div>
-          {freshest && (
-            <div className="mn-freshness" title="Dernière mise à jour Allocine">
-              <span className="mn-freshness-dot" aria-hidden="true" />
-              <span className="mn-wordmark-tag">
-                Maj {formatFreshness(freshest, now)}
-              </span>
-            </div>
-          )}
-        </div>
+      <Nav freshest={freshest} now={now} theaterCount={theaters.length} />
 
-        {day ? (
-          <h1 className="mn-hero-date">
-            <em>{heroDayName}</em>
-            {heroDateRest ? ` ${heroDateRest}` : ''}
-          </h1>
-        ) : (
-          <h1 className="mn-hero-date">
-            <em>Minuit</em>
-          </h1>
-        )}
+      <Hero day={day ?? null} stats={stats} />
 
-        {day && (
-          <div className="mn-hero-stats">
-            <div className="mn-stat">
-              <span className="mn-stat-number">{stats.films}</span>
-              <span className="mn-stat-label">
-                {stats.films > 1 ? 'Films à l\u2019affiche' : 'Film à l\u2019affiche'}
-              </span>
-            </div>
-            <div className="mn-stat">
-              <span className="mn-stat-number">{stats.shows}</span>
-              <span className="mn-stat-label">
-                {stats.shows > 1 ? 'Séances' : 'Séance'}
-              </span>
-            </div>
-            <div className="mn-stat">
-              <span className="mn-stat-number">{filteredTheaters.length}</span>
-              <span className="mn-stat-label">
-                {filteredTheaters.length > 1 ? 'Salles' : 'Salle'}
-              </span>
-            </div>
-          </div>
-        )}
-      </header>
+      <Controls
+        day={day ?? null}
+        selectedDay={selectedDay}
+        onSelectDay={setSelectedDay}
+        maxOffset={MAX_DAY_OFFSET}
+        theaters={theaters}
+        theatersStatus={theatersStatus}
+        selectedSlugs={selectedSlugs}
+        onChangeSlugs={setSelectedSlugs}
+        view={view}
+        onChangeView={setView}
+      />
 
-      {/* ── Floating control island (sticky) ──────────────────────── */}
-      <div className="mn-island-wrap">
-        <div className="mn-island">
-          <div className="mn-island-row">
-            {day && (
-              <span className="mn-island-date-chip">
-                J+{day.dayOffset}
-                <span>·</span>
-                {heroDate}
-              </span>
-            )}
-            <DayStrip
-              selectedDay={selectedDay}
-              onSelect={setSelectedDay}
-              maxOffset={MAX_DAY_OFFSET}
-            />
-          </div>
-          <div className="mn-island-row">
-            {theatersStatus === 'loading' ? (
-              <div
-                className="mn-skeleton-line"
-                style={{ width: '100%', height: 34 }}
-              />
-            ) : (
-              <FilterBar
-                theaters={theaters}
-                selected={selectedSlugs}
-                onChange={setSelectedSlugs}
-              />
-            )}
-            <ViewToggle view={view} onChange={(v) => setView(v as ViewMode)} />
-          </div>
-        </div>
-      </div>
-
-      {/* ── Content ────────────────────────────────────────────────── */}
-      <main className="mn-content mn-container" ref={contentRef}>
+      <main id="main" className="mn-content" ref={contentRef}>
         {error ? (
           <ErrorState message={error} onRetry={() => loadDay(selectedDay)} />
-        ) : isLoading ? (
-          <ScheduleSkeleton />
-        ) : !day ? (
-          <ScheduleSkeleton />
+        ) : isLoading || !day ? (
+          <ScheduleSkeleton view={view} />
         ) : filteredTheaters.length === 0 ||
           filteredTheaters.every((t) => t.films.length === 0) ? (
           <EmptyState />
@@ -183,14 +98,13 @@ export function DashboardContent() {
         )}
       </main>
 
-      {/* ── Footer ─────────────────────────────────────────────────── */}
       <footer className="mn-footer mn-container">
         <div className="mn-footer-row">
           <span>
             Données Allocine · cache 6h · {theaters.length} salle
             {theaters.length > 1 ? 's' : ''}
           </span>
-          <span>Minuit</span>
+          <span>Minuit · Strasbourg</span>
         </div>
       </footer>
     </div>

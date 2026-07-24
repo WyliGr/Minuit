@@ -33,7 +33,7 @@ export function DayStrip({ selectedDay, onSelect, maxOffset }: DayStripProps) {
           onClick={() => onSelect(d.offset)}
         >
           <span className="mn-day-chip-label">
-            {d.isToday ? 'AUJ' : d.isTomorrow ? 'DEM' : d.dayName.toUpperCase()}
+            {d.isToday ? "Auj" : d.isTomorrow ? "Dem" : d.dayName}
           </span>
           <span className="mn-day-chip-day">{d.dayNum}</span>
         </button>

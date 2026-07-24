@@ -6,17 +6,13 @@ import react from '@astrojs/react';
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3333';
 
 export default defineConfig({
-  server: {
-    port: 4321,
-  },
+  site: 'https://minuit.local',
+  server: { port: 4321 },
   integrations: [react()],
   vite: {
     server: {
       proxy: {
-        '/api': {
-          target: BACKEND_URL,
-          changeOrigin: true,
-        },
+        '/api': { target: BACKEND_URL, changeOrigin: true },
       },
     },
   },

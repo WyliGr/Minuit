@@ -1,3 +1,4 @@
+import { Film } from 'lucide-react';
 import type { TheaterSlice } from '../lib/types';
 import { bucketByHour, groupByTime, isPast } from '../lib/schedule';
 
@@ -12,15 +13,27 @@ export function ByTimeView({ theaters, now }: ByTimeViewProps) {
 
   if (buckets.length === 0) return null;
 
+  const totalRows = rows.length;
+
   return (
     <div>
+      <header className="mn-section-head">
+        <h2 className="mn-section-title">Programmation · par horaire</h2>
+        <span className="mn-section-count">{totalRows} séances</span>
+      </header>
+
       {buckets.map((b, i) => (
-        <div
+        <section
           key={b.hour}
-          className="mn-time-hour mn-reveal"
-          style={{ transitionDelay: `${Math.min(i * 0.04, 0.24)}s` }}
+          className="mn-time-bucket mn-reveal"
+          style={{ transitionDelay: `${Math.min(i * 0.03, 0.2)}s` }}
         >
-          <span className="mn-time-hour-label">{b.hour}</span>
+          <header className="mn-time-bucket-head">
+            <h3 className="mn-time-bucket-hour">{b.hour}</h3>
+            <span className="mn-time-bucket-count">
+              {b.rows.length} {b.rows.length > 1 ? 'séances' : 'séance'}
+            </span>
+          </header>
           <div className="mn-time-rows">
             {b.rows.map((r) => (
               <div
@@ -28,17 +41,21 @@ export function ByTimeView({ theaters, now }: ByTimeViewProps) {
                 className="mn-time-row"
                 data-past={isPast(r.startsAt, now)}
               >
-                <span className="mn-time-time">{r.time}</span>
-                <span className="mn-time-title">{r.title}</span>
-                <span className="mn-time-theater">{r.theaterName}</span>
-                {r.isVost && <span className="mn-showtime-flag">VOST</span>}
-                {r.isPreview && (
-                  <span className="mn-showtime-flag">AVANT</span>
-                )}
+                <span className="mn-time-row-time">{r.time}</span>
+                <span className="mn-time-row-title">{r.title}</span>
+                <span className="mn-time-row-theater">{r.theaterName}</span>
+                <span className="mn-time-row-flags">
+                  {r.isVost && <span className="mn-showtime-flag">VOST</span>}
+                  {r.isPreview && (
+                    <span className="mn-showtime-flag">
+                      <Film size={9} strokeWidth={2} aria-hidden="true" /> AVANT
+                    </span>
+                  )}
+                </span>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       ))}
     </div>
   );
