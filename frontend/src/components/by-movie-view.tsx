@@ -6,9 +6,10 @@ import { Poster } from './poster';
 interface ByMovieViewProps {
   theaters: TheaterSlice[];
   now: Date;
+  onOpenPoster: (url: string, title: string) => void;
 }
 
-export function ByMovieView({ theaters, now }: ByMovieViewProps) {
+export function ByMovieView({ theaters, now, onOpenPoster }: ByMovieViewProps) {
   const groups = groupByMovie(theaters);
 
   if (groups.length === 0) return null;
@@ -40,7 +41,11 @@ export function ByMovieView({ theaters, now }: ByMovieViewProps) {
             style={{ transitionDelay: `${Math.min(i * 0.03, 0.2)}s` }}
           >
             <header className="mn-film-head">
-              <Poster url={g.posterUrl} title={g.title} />
+              <Poster
+                url={g.posterUrl}
+                title={g.title}
+                onOpen={onOpenPoster}
+              />
               <div className="mn-film-head-text">
                 <span className="mn-film-index">
                   {String(i + 1).padStart(2, '0')}

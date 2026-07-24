@@ -3,6 +3,10 @@ import { useState } from 'react';
 interface PosterProps {
   url: string | null;
   title: string;
+  /** When provided and `url` is set, the poster becomes a button that
+   *  opens the fullscreen modal. Without this, the poster is a static
+   *  decorative image. */
+  onOpen?: (url: string, title: string) => void;
 }
 
 function monogram(title: string): string {
@@ -15,16 +19,13 @@ function monogram(title: string): string {
   return (words[0][0] + words[1][0]).toUpperCase();
 }
 
-export function Poster({ url, title }: PosterProps) {
+export function Poster({ url, title, onOpen }: PosterProps) {
   const [errored, setErrored] = useState(false);
   const showFallback = !url || errored;
+  const interactive = !!url && !errored && !!onOpen;
 
-  return (
-    <div
-      className="mn-poster"
-      role="img"
-      aria-label={title ? `Affiche : ${title}` : 'Affiche'}
-    >
+  const content = (
+    <>
       {!showFallback && (
         <img
           className="mn-poster-img"
@@ -42,6 +43,30 @@ export function Poster({ url, title }: PosterProps) {
       >
         {monogram(title)}
       </span>
+    </>
+  );
+
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        className="mn-poster"
+        data-interactive="true"
+        aria-label={title ? `Voir l'affiche de ${title} en grand` : "Voir l'affiche en grand"}
+        onClick={() => onOpen(url!, title)}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className="mn-poster"
+      role="img"
+      aria-label={title ? `Affiche : ${title}` : 'Affiche'}
+    >
+      {content}
     </div>
   );
 }

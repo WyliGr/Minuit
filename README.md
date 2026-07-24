@@ -1,6 +1,6 @@
 # Minuit
 
-Cinema schedule aggregator for Strasbourg. Fetches showtimes from Allocine,
+Cinema schedule aggregator. Fetches showtimes from Allocine,
 centralizes them through a cache-first backend, and renders a single dark UI.
 
 Monorepo: `backend/` (AdonisJS API + SQLite) and `frontend/` (Astro + React).

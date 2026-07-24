@@ -11,10 +11,18 @@ import { ByMovieView } from './by-movie-view';
 import { ByTimeView } from './by-time-view';
 import { ScheduleSkeleton } from './skeletons';
 import { EmptyState, ErrorState } from './state-views';
+import { PosterModal } from './poster-modal';
 import { useScrollReveal } from './use-scroll-reveal';
 
 type ViewMode = 'movie' | 'time';
 const MAX_DAY_OFFSET = 30;
+
+interface OpenPoster {
+  url: string;
+  title: string;
+  /** Element to return focus to when the modal closes. */
+  opener: HTMLElement;
+}
 
 export function DashboardContent() {
   const { theaters, theatersStatus, days, loadingDays, errors, loadDay } =
@@ -24,6 +32,7 @@ export function DashboardContent() {
   const [view, setView] = useState<ViewMode>('movie');
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => new Date());
+  const [openPoster, setOpenPoster] = useState<OpenPoster | null>(null);
 
   const contentRef = useRef<HTMLDivElement>(null);
   useScrollReveal(contentRef);
@@ -64,6 +73,16 @@ export function DashboardContent() {
     );
   }, [filteredTheaters]);
 
+  const openPosterModal = (url: string, title: string) => {
+    // Capture the element that was clicked so focus can return there
+    // when the modal closes (a11y requirement).
+    setOpenPoster({
+      url,
+      title,
+      opener: (document.activeElement as HTMLElement) ?? document.body,
+    });
+  };
+
   return (
     <div className="mn-app">
       <Nav freshest={freshest} now={now} theaterCount={theaters.length} />
@@ -92,7 +111,11 @@ export function DashboardContent() {
           filteredTheaters.every((t) => t.films.length === 0) ? (
           <EmptyState />
         ) : view === 'movie' ? (
-          <ByMovieView theaters={filteredTheaters} now={now} />
+          <ByMovieView
+            theaters={filteredTheaters}
+            now={now}
+            onOpenPoster={openPosterModal}
+          />
         ) : (
           <ByTimeView theaters={filteredTheaters} now={now} />
         )}
@@ -120,6 +143,15 @@ export function DashboardContent() {
           <span>Minuit</span>
         </div>
       </footer>
+
+      {openPoster && (
+        <PosterModal
+          url={openPoster.url}
+          title={openPoster.title}
+          returnFocusTo={openPoster.opener}
+          onClose={() => setOpenPoster(null)}
+        />
+      )}
     </div>
   );
 }

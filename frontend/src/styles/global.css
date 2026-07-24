@@ -731,18 +731,30 @@ body::after {
 
 .mn-poster {
   position: relative;
+  display: block;
   width: 56px;
   aspect-ratio: 2 / 3;
+  padding: 0;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--color-surface-2);
   flex-shrink: 0;
+  cursor: zoom-in;
   transition: border-color var(--dur-base) var(--ease-out);
 }
 
 .mn-poster:hover {
   border-color: var(--color-line-strong);
+}
+
+/* When the poster is a real <button>, reset browser default styles
+   that the static-div case doesn't have. */
+button.mn-poster {
+  font: inherit;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .mn-poster-img {
@@ -770,6 +782,121 @@ body::after {
 
 .mn-poster-fallback[hidden] {
   display: none;
+}
+
+/* ── Poster modal ─────────────────────────────────────────────────────
+   Fullscreen overlay for the poster zoom. Portal'd to body so it sits
+   above every other layer. Backdrop dims the page; the image is
+   centered with a max size tied to the viewport. Close via backdrop
+   click, Escape key, or the close button. Body scroll is locked
+   while open (handled in the component). */
+
+.mn-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+.mn-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: mn-modal-fade var(--dur-base) var(--ease-out);
+  cursor: zoom-out;
+}
+
+.mn-modal-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: min(85vmin, 720px);
+  max-height: 100dvh;
+  animation: mn-modal-pop var(--dur-slow) var(--ease-out);
+}
+
+.mn-modal-img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100dvh - 96px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.mn-modal-caption {
+  font-family: var(--font-mono);
+  color: var(--color-text-2);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  font-size: var(--text-xs);
+}
+
+.mn-modal-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  color: var(--color-text-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.mn-modal-close:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+  border-color: var(--color-line-strong);
+}
+
+.mn-modal-close:active {
+  transform: scale(0.95);
+}
+
+@keyframes mn-modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mn-modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mn-modal-backdrop,
+  .mn-modal-frame {
+    animation: none;
+  }
 }
 
 .mn-film-title {
