@@ -437,9 +437,6 @@ body::after {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 
 .mn-island-row::-webkit-scrollbar {
@@ -450,8 +447,18 @@ body::after {
   border-top: 1px solid var(--color-line);
 }
 
-.mn-island-spacer {
-  flex: 1;
+/* The primary row has two children: the day strip (scrolls horizontally)
+   and the view toggle (pinned right). The day strip absorbs the slack
+   and hides its own scrollbar; the view toggle never wraps. */
+
+.mn-island-row-primary {
+  gap: var(--space-4);
+}
+
+.mn-island-row-secondary {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* Day strip — horizontal, monospace numerics */
@@ -460,7 +467,15 @@ body::after {
   display: flex;
   align-items: stretch;
   gap: 2px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mn-day-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .mn-day-chip {
@@ -1234,11 +1249,75 @@ body::after {
   }
 }
 
-/* ── 13. Responsive overrides ────────────────────────────────────────── */
+/* ── 13. Responsive overrides ──────────────────────────────────────────
+   Mobile-first philosophy baked into the base styles above; this block
+   adjusts the few elements that need breakpoint-specific behavior:
+   - the hero stats (3 cols → 3 cols, smaller at narrow)
+   - the by-movie venue grid (200px 1fr → stacked, venue as a label row)
+   - the by-time row layout (4 cols → 2 cols, time pinned left)
+   - the film head (poster + text + meta → poster + text on first row,
+     meta below)
+   - the controls island (already handled in the primary/secondary row
+     markup; the CSS just adjusts padding)
+   - touch targets: chips and pills get a 44px-min tap area at <=640.
+   Breakpoints: 1024 (lg), 768 (md), 640 (sm), 480 (xs). */
 
 @media (max-width: 1024px) {
   .mn-hero {
     padding: var(--space-16) 0 var(--space-12);
+  }
+  .mn-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  .mn-hero-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+  .mn-hero-stats {
+    flex: 1 1 280px;
+  }
+  .mn-hero-meta {
+    flex: 1 1 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mn-view-toggle-btn {
+    padding: 5px var(--space-2);
+  }
+  .mn-view-toggle-btn span {
+    display: none;
+  }
+  .mn-film-head {
+    grid-template-columns: 64px 1fr;
+    gap: var(--space-3);
+  }
+  .mn-film-head .mn-film-meta {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-top: var(--space-2);
+  }
+  .mn-venue {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+  .mn-venue-name {
+    font-size: var(--text-xs);
+  }
+  .mn-time-row {
+    grid-template-columns: 56px 1fr;
+    gap: var(--space-3);
+  }
+  .mn-time-row-theater {
+    grid-column: 2;
+    font-size: 10px;
+  }
+  .mn-time-row-flags {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 }
 
@@ -1246,33 +1325,66 @@ body::after {
   .mn-hero {
     padding: var(--space-12) 0 var(--space-8);
   }
+  .mn-hero-eyebrow {
+    margin-bottom: var(--space-6);
+  }
+  .mn-hero-date {
+    font-size: var(--text-4xl);
+  }
+  .mn-hero-date-num {
+    font-size: var(--text-xl);
+  }
+  .mn-hero-side {
+    flex-direction: column;
+    gap: var(--space-6);
+  }
   .mn-hero-stats {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
   .mn-stat:nth-child(3) {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
-  .mn-nav-meta {
+  .mn-stat-value {
+    font-size: var(--text-xl);
+  }
+  .mn-nav-status-text,
+  .mn-nav-divider {
     display: none;
   }
   .mn-island {
     top: 56px;
   }
-  .mn-day-strip,
-  .mn-filters,
-  .mn-view-toggle {
-    width: 100%;
+  .mn-island-row-primary {
+    gap: var(--space-2);
   }
-  .mn-island-row {
-    flex-wrap: nowrap;
+  .mn-day-chip {
+    min-width: 48px;
+    padding: var(--space-2) var(--space-3);
+  }
+  .mn-theater-pill {
+    padding: var(--space-2) var(--space-3);
+    min-height: 32px;
+  }
+  .mn-showtime {
+    min-height: 32px;
+  }
+  .mn-poster {
+    width: 48px;
   }
 }
 
 @media (max-width: 480px) {
-  .mn-film-head {
-    gap: var(--space-3);
-  }
   .mn-film-title {
     font-size: var(--text-lg);
+  }
+  .mn-hero-date {
+    font-size: var(--text-3xl);
+  }
+  .mn-day-chip {
+    min-width: 44px;
+    padding: 6px var(--space-2);
+  }
+  .mn-time-bucket-hour {
+    font-size: var(--text-xl);
   }
 }

@@ -16,15 +16,17 @@ export function Nav({ freshest, now, theaterCount }: NavProps) {
         </span>
         <div className="mn-nav-meta" aria-live="polite">
           {freshest && (
-            <>
-              <span className="mn-nav-status">
-                <span className="mn-nav-status-dot" aria-hidden="true" />
-                <span>Maj {formatFreshness(freshest, now)}</span>
+            <span className="mn-nav-status">
+              <span className="mn-nav-status-dot" aria-hidden="true" />
+              <span className="mn-nav-status-text">
+                Maj {formatFreshness(freshest, now)}
               </span>
-              <span className="mn-nav-divider" aria-hidden="true" />
-            </>
+            </span>
           )}
-          <span>
+          {freshest && (
+            <span className="mn-nav-divider" aria-hidden="true" />
+          )}
+          <span className="mn-nav-count">
             {theaterCount} {theaterCount > 1 ? 'salles' : 'salle'}
           </span>
         </div>

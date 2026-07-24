@@ -31,16 +31,15 @@ export function Controls({
   return (
     <div className="mn-island">
       <div className="mn-container">
-        <div className="mn-island-row">
+        <div className="mn-island-row mn-island-row-primary">
           <DayStrip
             selectedDay={selectedDay}
             onSelect={onSelectDay}
             maxOffset={maxOffset}
           />
-          <span className="mn-island-spacer" />
           <ViewToggle view={view} onChange={onChangeView} />
         </div>
-        <div className="mn-island-row">
+        <div className="mn-island-row mn-island-row-secondary">
           {theatersStatus === 'loading' ? (
             <div
               className="mn-skel mn-skel-bar"
