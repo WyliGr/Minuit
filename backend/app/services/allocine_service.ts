@@ -81,6 +81,7 @@ export default class AllocineService {
       films.push({
         title,
         runtime: parseRuntime(item.movie?.runtime),
+        posterUrl: item.movie?.poster?.url ?? null,
         showtimes,
       })
     }

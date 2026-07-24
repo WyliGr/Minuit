@@ -13,6 +13,7 @@ export type ShowtimeEntry = {
 export type FilmEntry = {
   title: string
   runtime: number
+  posterUrl: string | null
   showtimes: ShowtimeEntry[]
 }
 

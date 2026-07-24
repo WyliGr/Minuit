@@ -60,6 +60,7 @@ Returns the theater list instantly (reads DB, does NOT call Allocine). Use for f
         {
           "title": "DUNE PART TWO",
           "runtime": 166,
+          "posterUrl": "https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg",
           "showtimes": [
             {
               "time": "14:30",
@@ -119,6 +120,7 @@ SchedulesResponse (single day — flat)
     └── films[]       Film
         ├── title     string   uppercased, quotes stripped
         ├── runtime   integer  minutes (parsed from "3h 07min")
+        ├── posterUrl string|null  absolute URL to movie poster image
         └── showtimes[] Showtime (sorted by startsAt ascending)
             ├── time      string   "HH:MM" (fr-FR, 24h)
             ├── startsAt  string   ISO 8601 timestamp

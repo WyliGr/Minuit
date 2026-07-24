@@ -8,9 +8,14 @@ const showtimeSchema = vine.object({
 
 const showtimesMapSchema = vine.record(vine.array(showtimeSchema).optional())
 
+const posterSchema = vine.object({
+  url: vine.string().optional(),
+})
+
 const movieSchema = vine.object({
   title: vine.string().optional(),
   runtime: vine.string().optional(),
+  poster: posterSchema.optional(),
 })
 
 const resultSchema = vine.object({

@@ -113,6 +113,7 @@ paths:
                     films:
                       - title: DUNE PART TWO
                         runtime: 166
+                        posterUrl: https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg
                         showtimes:
                           - time: '14:30'
                             startsAt: '2026-07-24T14:30:00'
@@ -260,7 +261,7 @@ components:
 
     Film:
       type: object
-      required: [title, runtime, showtimes]
+      required: [title, runtime, posterUrl, showtimes]
       properties:
         title:
           type: string
@@ -270,6 +271,12 @@ components:
           type: integer
           description: Movie runtime in minutes (parsed from Allocine's "Xh YYmin" format).
           example: 166
+        posterUrl:
+          type: string
+          nullable: true
+          format: uri
+          description: Absolute URL to the movie poster image. Null if Allocine provides none.
+          example: https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg
         showtimes:
           type: array
           description: Chronologically sorted showtimes for this film.
