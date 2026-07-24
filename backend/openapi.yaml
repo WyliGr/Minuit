@@ -1,0 +1,245 @@
+openapi: 3.1.0
+info:
+  title: Minuit API
+  version: 1.0.0
+  description: |
+    Cinema schedule aggregator for Strasbourg theaters. Fetches showtimes
+    from Allocine and serves them through a single cache-first endpoint.
+
+    **Caching:** Responses are cached in SQLite for 6 hours (configurable via
+    `CACHE_TTL_MINUTES`). The first request for a given theater+date fetches
+    from Allocine (~200ms); subsequent requests return cached data (~10ms).
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:3333
+    description: Local development
+  - url: http://localhost:3333/api/v1
+    description: Docker (compose up)
+
+tags:
+  - name: Schedules
+    description: Theater schedule endpoints
+  - name: Health
+    description: Service health check
+
+paths:
+  /:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Returns service name and status.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                name: minuit
+                status: ok
+
+  /api/v1/theater:
+    get:
+      tags: [Schedules]
+      summary: Get theater schedules
+      description: |
+        Returns movie showtimes for all active theaters for a given day offset.
+
+        - `days=0` (default): today. Past showtimes are filtered out.
+        - `days=1`: tomorrow. All showtimes included.
+        - `days=N`: N days from today (0-30).
+
+        The response includes one entry per active theater, each containing
+        its films and their showtimes. Showtimes are sorted chronologically.
+      operationId: getTheaterSchedules
+      parameters:
+        - name: days
+          in: query
+          description: |
+            Day offset from today (0 = today, 1 = tomorrow, etc.).
+            Must be between 0 and 30. Defaults to 0 if omitted.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 30
+            default: 0
+          examples:
+            today:
+              value: 0
+              summary: Today (default)
+            tomorrow:
+              value: 1
+              summary: Tomorrow
+            nextWeek:
+              value: 7
+              summary: One week from today
+      responses:
+        '200':
+          description: Successfully retrieved schedules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulesResponse'
+              example:
+                date: '2026-07-24'
+                dayOffset: 0
+                displayDate: vendredi 24 juillet
+                generatedAt: '2026-07-24T14:03:11.000Z'
+                theaters:
+                  - slug: ugc-cine-cite
+                    name: UGC Ciné Cité
+                    films:
+                      - title: DUNE PART TWO
+                        runtime: 166
+                        showtimes:
+                          - time: '14:30'
+                            startsAt: '2026-07-24T14:30:00'
+                            isVost: false
+                            isPreview: false
+                          - time: '17:00'
+                            startsAt: '2026-07-24T17:00:00'
+                            isVost: true
+                            isPreview: false
+                  - slug: star-st-exupery
+                    name: Star St-Exupéry
+                    films: []
+        '422':
+          description: Validation error (invalid or out-of-range `days` parameter)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              example:
+                errors:
+                  - message: The days field must be a number
+                    rule: number
+                    field: days
+                  - message: The days field must be at least 0
+                    rule: min
+                    field: days
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [name, status]
+      properties:
+        name:
+          type: string
+          example: minuit
+        status:
+          type: string
+          example: ok
+
+    SchedulesResponse:
+      type: object
+      required: [date, dayOffset, displayDate, generatedAt, theaters]
+      properties:
+        date:
+          type: string
+          format: date
+          description: The target date in YYYY-MM-DD format.
+          example: '2026-07-24'
+        dayOffset:
+          type: integer
+          description: The day offset that was requested (0 = today).
+          example: 0
+        displayDate:
+          type: string
+          description: Human-readable date in French (weekday day month).
+          example: vendredi 24 juillet
+        generatedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when this response was assembled.
+          example: '2026-07-24T14:03:11.000Z'
+        theaters:
+          type: array
+          description: One entry per active theater, ordered by theater ID.
+          items:
+            $ref: '#/components/schemas/TheaterSlice'
+
+    TheaterSlice:
+      type: object
+      required: [slug, name, films]
+      properties:
+        slug:
+          type: string
+          description: URL-friendly theater identifier (used as response key).
+          example: ugc-cine-cite
+        name:
+          type: string
+          description: Display name of the theater.
+          example: UGC Ciné Cité
+        films:
+          type: array
+          description: Movies playing at this theater on the target date. Empty if no showtimes.
+          items:
+            $ref: '#/components/schemas/Film'
+
+    Film:
+      type: object
+      required: [title, runtime, showtimes]
+      properties:
+        title:
+          type: string
+          description: Movie title, uppercased and stripped of quotes.
+          example: DUNE PART TWO
+        runtime:
+          type: integer
+          description: Movie runtime in minutes (parsed from Allocine's "Xh YYmin" format).
+          example: 166
+        showtimes:
+          type: array
+          description: Chronologically sorted showtimes for this film.
+          items:
+            $ref: '#/components/schemas/Showtime'
+
+    Showtime:
+      type: object
+      required: [time, startsAt, isVost, isPreview]
+      properties:
+        time:
+          type: string
+          description: Showtime in HH:MM format (French locale, 24h).
+          example: '14:30'
+        startsAt:
+          type: string
+          description: ISO 8601 timestamp of the showtime start.
+          example: '2026-07-24T14:30:00'
+        isVost:
+          type: boolean
+          description: True if the showing is in original version (Version Originale Sous-titrée).
+          example: false
+        isPreview:
+          type: boolean
+          description: True if this is a preview screening (avant-première).
+          example: false
+
+    ValidationError:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required: [message, rule, field]
+            properties:
+              message:
+                type: string
+                example: The days field must be a number
+              rule:
+                type: string
+                description: VineJS validation rule that failed.
+                enum: [number, min, max]
+                example: number
+              field:
+                type: string
+                description: The query parameter that failed validation.
+                example: days

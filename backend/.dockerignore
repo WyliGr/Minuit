@@ -1,0 +1,11 @@
+node_modules
+build
+tmp
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.env
+.env.local
+.git
+.gitignore
+tests

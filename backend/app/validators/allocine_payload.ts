@@ -1,0 +1,25 @@
+import vine from '@vinejs/vine'
+
+const showtimeSchema = vine.object({
+  startsAt: vine.string(),
+  diffusionVersion: vine.string().optional(),
+  isPreview: vine.boolean().optional(),
+})
+
+const showtimesMapSchema = vine.record(vine.array(showtimeSchema).optional())
+
+const movieSchema = vine.object({
+  title: vine.string().optional(),
+  runtime: vine.string().optional(),
+})
+
+const resultSchema = vine.object({
+  movie: movieSchema.optional(),
+  showtimes: showtimesMapSchema.optional(),
+})
+
+export const allocinePayloadValidator = vine.compile(
+  vine.object({
+    results: vine.array(resultSchema),
+  })
+)
