@@ -113,7 +113,7 @@ paths:
                     films:
                       - title: DUNE PART TWO
                         runtime: 166
-                        posterUrl: https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg
+                        posterUrl: /api/v1/poster?url=https%3A%2F%2Ffr.web.img6.acsta.net%2Fimg%2Fc5%2F3a%2Fc53a1a379f5efd5c58ae238e530e6927.jpg
                         showtimes:
                           - time: '14:30'
                             startsAt: '2026-07-24T14:30:00'
@@ -160,6 +160,51 @@ paths:
                   - slug: le-cosmos
                     name: Le Cosmos
                     isActive: true
+
+  /api/v1/poster:
+    get:
+      tags: [Schedules]
+      summary: Proxy poster image
+      description: |
+        Streams a poster image from Allocine's CDN through the backend (same-origin,
+        bypasses CORS/hotlink blocks). The `posterUrl` field in schedule responses
+        is already rewritten to this proxy URL — the frontend uses it directly as
+        `<img src={posterUrl}>`.
+
+        **SSRF guard:** the `url` param must be `https://` and on an `*.acsta.net` host.
+      operationId: getPoster
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: Full Allocine CDN URL (https only, *.acsta.net host).
+          schema:
+            type: string
+            format: uri
+          example: https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg
+      responses:
+        '200':
+          description: Raw image bytes
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: public, max-age=2592000, immutable
+            Content-Type:
+              schema:
+                type: string
+                example: image/jpeg
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '422':
+          description: URL missing, not https, or not on an allowed host
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
 
 components:
   schemas:
@@ -274,9 +319,8 @@ components:
         posterUrl:
           type: string
           nullable: true
-          format: uri
-          description: Absolute URL to the movie poster image. Null if Allocine provides none.
-          example: https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg
+          description: Proxy URL (/api/v1/poster?url=...) — use directly as img src. Null if Allocine provides no poster. Original Allocine CDN URL is stored in the DB; rewriting happens at response time.
+          example: /api/v1/poster?url=https%3A%2F%2Ffr.web.img6.acsta.net%2Fimg%2Fc5%2F3a%2Fc53a1a379f5efd5c58ae238e530e6927.jpg
         showtimes:
           type: array
           description: Chronologically sorted showtimes for this film.

@@ -1,6 +1,7 @@
 import { Film } from 'lucide-react';
 import type { TheaterSlice } from '../lib/types';
 import { formatRuntime, groupByMovie, isPast } from '../lib/schedule';
+import { Poster } from './poster';
 
 interface ByMovieViewProps {
   theaters: TheaterSlice[];
@@ -39,10 +40,13 @@ export function ByMovieView({ theaters, now }: ByMovieViewProps) {
             style={{ transitionDelay: `${Math.min(i * 0.03, 0.2)}s` }}
           >
             <header className="mn-film-head">
-              <span className="mn-film-index">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <h3 className="mn-film-title">{g.title}</h3>
+              <Poster url={g.posterUrl} title={g.title} />
+              <div className="mn-film-head-text">
+                <span className="mn-film-index">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mn-film-title">{g.title}</h3>
+              </div>
               <div className="mn-film-meta">
                 <span className="mn-film-runtime">
                   {formatRuntime(g.runtime)}
@@ -91,7 +95,6 @@ export function ByMovieView({ theaters, now }: ByMovieViewProps) {
           </section>
         );
       })}
-
     </div>
   );
 }

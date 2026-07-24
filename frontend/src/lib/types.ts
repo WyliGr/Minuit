@@ -28,6 +28,8 @@ export interface Film {
   title: string;
   /** Minutes */
   runtime: number;
+  /** Absolute URL to movie poster image, or null if not resolved. */
+  posterUrl: string | null;
   showtimes: Showtime[];
 }
 

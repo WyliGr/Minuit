@@ -44,6 +44,8 @@ export function countDistinctFilms(theaters: TheaterSlice[]): number {
 export interface MovieGroup {
   title: string;
   runtime: number;
+  /** First non-null posterUrl found across all venues showing this film. */
+  posterUrl: string | null;
   /** (theaterSlug, theaterName, showtimes) per theater showing this film. */
   venues: { slug: string; name: string; showtimes: Showtime[] }[];
 }
@@ -56,10 +58,14 @@ export function groupByMovie(theaters: TheaterSlice[]): MovieGroup[] {
       const existing = map.get(f.title);
       if (existing) {
         existing.venues.push({ slug: t.slug, name: t.name, showtimes: f.showtimes });
+        if (!existing.posterUrl && f.posterUrl) {
+          existing.posterUrl = f.posterUrl;
+        }
       } else {
         map.set(f.title, {
           title: f.title,
           runtime: f.runtime,
+          posterUrl: f.posterUrl ?? null,
           venues: [{ slug: t.slug, name: t.name, showtimes: f.showtimes }],
         });
       }

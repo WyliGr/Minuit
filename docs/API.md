@@ -13,6 +13,20 @@ Cinema schedule aggregator. Two public endpoints, no auth, cache-first (6h SQLit
 
 No params. Returns `{ name: "minuit", status: "ok" }`.
 
+### `GET /api/v1/poster?url=<encoded>` — Proxy poster image
+
+Streams a poster image from Allocine's CDN through the backend (same-origin, bypasses CORS/hotlink blocks). The `posterUrl` field in schedule responses is already rewritten to this proxy URL — frontend uses it directly as `<img src={posterUrl}>`.
+
+**Query param:**
+
+| name | type | required | description |
+|------|------|----------|-------------|
+| `url` | string (URL) | yes | Full Allocine CDN URL. Must be `https://` and on an `*.acsta.net` host. |
+
+**Success — `200`** — raw image bytes with `Content-Type: image/jpeg` and `Cache-Control: public, max-age=2592000, immutable` (30 days).
+
+**Validation error — `422`** — URL missing, not https, or not on an allowed host.
+
 ### `GET /api/v1/theaters` — List active theaters
 
 Returns the theater list instantly (reads DB, does NOT call Allocine). Use for filter bars / first paint before schedules resolve.
@@ -60,7 +74,7 @@ Returns the theater list instantly (reads DB, does NOT call Allocine). Use for f
         {
           "title": "DUNE PART TWO",
           "runtime": 166,
-          "posterUrl": "https://fr.web.img6.acsta.net/img/c5/3a/c53a1a379f5efd5c58ae238e530e6927.jpg",
+          "posterUrl": "/api/v1/poster?url=https%3A%2F%2Ffr.web.img6.acsta.net%2Fimg%2Fc5%2F3a%2Fc53a1a379f5efd5c58ae238e530e6927.jpg",
           "showtimes": [
             {
               "time": "14:30",
@@ -120,7 +134,7 @@ SchedulesResponse (single day — flat)
     └── films[]       Film
         ├── title     string   uppercased, quotes stripped
         ├── runtime   integer  minutes (parsed from "3h 07min")
-        ├── posterUrl string|null  absolute URL to movie poster image
+        ├── posterUrl string|null  proxy URL (/api/v1/poster?url=...) — use directly as <img src>
         └── showtimes[] Showtime (sorted by startsAt ascending)
             ├── time      string   "HH:MM" (fr-FR, 24h)
             ├── startsAt  string   ISO 8601 timestamp
@@ -164,6 +178,9 @@ SchedulesRangeResponse (multi-day — wrapped)
 ```sh
 # Theater list (instant, no Allocine)
 curl http://localhost:3333/api/v1/theaters
+
+# Poster proxy (streams image bytes)
+curl "http://localhost:3333/api/v1/poster?url=https%3A%2F%2Ffr.web.img6.acsta.net%2Fimg%2Fc5%2F3a%2Fc53a1a379f5efd5c58ae238e530e6927.jpg" -o poster.jpg
 
 # Today (default)
 curl http://localhost:3333/api/v1/theater

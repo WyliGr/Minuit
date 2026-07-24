@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import Theater from '#models/theater'
 import Schedule from '#models/schedule'
-import type { SchedulePayload } from '#models/schedule'
+import type { FilmEntry, SchedulePayload } from '#models/schedule'
 import AllocineService from '#services/allocine_service'
 
 export type TheaterSlice = {
@@ -33,6 +33,13 @@ function ttlMinutes(): number {
 
 function isStale(lastFetchedAt: DateTime, now: DateTime): boolean {
   return now.diff(lastFetchedAt, 'minutes').minutes > ttlMinutes()
+}
+
+function rewritePosterUrls(films: FilmEntry[]): FilmEntry[] {
+  return films.map((film) => ({
+    ...film,
+    posterUrl: film.posterUrl ? `/api/v1/poster?url=${encodeURIComponent(film.posterUrl)}` : null,
+  }))
 }
 
 export function parseDaysParam(days: string | number | undefined): number[] {
@@ -105,7 +112,7 @@ export default class ScheduleService {
         slug: theater.slug,
         name: theater.name,
         lastFetchedAt: existing.lastFetchedAt.toISO()!,
-        films: existing.payload.films,
+        films: rewritePosterUrls(existing.payload.films),
       }
     }
 
@@ -118,7 +125,7 @@ export default class ScheduleService {
       slug: theater.slug,
       name: theater.name,
       lastFetchedAt: now.toISO()!,
-      films: payload.films,
+      films: rewritePosterUrls(payload.films),
     }
   }
 
