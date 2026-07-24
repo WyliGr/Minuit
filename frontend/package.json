@@ -11,9 +11,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",
-    "@astryxdesign/cli": "^0.1.8",
-    "@astryxdesign/core": "^0.1.8",
-    "@astryxdesign/theme-neutral": "^0.1.8",
+    "@fontsource-variable/cormorant-garamond": "^5.3.0",
     "@fontsource-variable/geist": "^5.3.0",
     "@fontsource-variable/geist-mono": "^5.3.0",
     "@types/react": "^19.2.17",
@@ -22,11 +20,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
-  "allowScripts": {
-    "@astryxdesign/cli@0.1.8": true,
-    "@astryxdesign/core@0.1.8": true,
-    "esbuild@0.28.1": true
-  },
+  "allowScripts": {},
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@types/node": "^26.1.1",

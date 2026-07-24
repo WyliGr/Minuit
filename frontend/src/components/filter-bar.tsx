@@ -20,7 +20,7 @@ export function FilterBar({ theaters, selected, onChange }: FilterBarProps) {
   const allSelected = selected.size === 0;
 
   return (
-    <div className="mn-filters">
+    <div className="mn-filters" role="group" aria-label="Salles">
       <button
         className="mn-theater-pill"
         data-selected={allSelected}

@@ -7,7 +7,7 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [indicator, setIndicator] = useState({ left: 4, width: 0 });
+  const [indicator, setIndicator] = useState({ left: 3, width: 0 });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -23,14 +23,17 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
   }, [view]);
 
   return (
-    <div className="mn-view-toggle" ref={containerRef}>
+    <div className="mn-view-toggle" ref={containerRef} role="tablist">
       <span
         className="mn-view-toggle-indicator"
         style={{ left: indicator.left, width: indicator.width }}
+        aria-hidden="true"
       />
       <button
         className="mn-view-toggle-btn"
         data-selected={view === 'movie'}
+        role="tab"
+        aria-selected={view === 'movie'}
         onClick={() => onChange('movie')}
       >
         Par film
@@ -38,6 +41,8 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
       <button
         className="mn-view-toggle-btn"
         data-selected={view === 'time'}
+        role="tab"
+        aria-selected={view === 'time'}
         onClick={() => onChange('time')}
       >
         Par heure

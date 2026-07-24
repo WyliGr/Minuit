@@ -1,6 +1,7 @@
 export function EmptyState() {
   return (
     <div className="mn-empty">
+      <div className="mn-empty-glyph">·</div>
       <p className="mn-empty-title">Aucune séance</p>
       <p className="mn-empty-desc">
         Aucun film ne passe dans les salles sélectionnées ce jour. Essayez un

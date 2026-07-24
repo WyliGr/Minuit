@@ -1,8 +1,7 @@
 ---
+import '@fontsource-variable/cormorant-garamond';
 import '@fontsource-variable/geist';
 import '@fontsource-variable/geist-mono';
-import '@astryxdesign/core/reset.css';
-import '@astryxdesign/core/astryx.css';
 import '../styles/global.css';
 ---
 
@@ -11,57 +10,89 @@ import '../styles/global.css';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Minuit — séances cinéma à Strasbourg, agrégées en temps réel" />
-    <meta name="theme-color" content="#050506" />
-    <title>Minuit</title>
+    <meta
+      name="description"
+      content="Minuit — séances cinéma à Strasbourg, agrégées en temps réel."
+    />
+    <meta name="theme-color" content="#0B0A09" />
+    <title>Minuit — Cinéma à Strasbourg</title>
     <style is:inline>
       :root {
         color-scheme: dark;
-        --mn-black: #050506;
-        --mn-surface: #0a0a0c;
-        --mn-card: #0f0f12;
-        --mn-near-white: #f4f4f6;
-        --mn-ash: #8c8c96;
-        --mn-accent: #3d8bff;
-        --mn-accent-soft: #3d8bff22;
-        --mn-error: #ff5a6a;
-        --mn-error-soft: #ff5a6a22;
-        --mn-hairline: #ffffff0a;
-        --mn-hairline-2: #ffffff1f;
-        --mn-font: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        --mn-font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+        /* ── Midnight Brass palette ───────────────────────────────────
+           Warm-ink dark base, single antique-brass accent. One accent,
+           locked across the whole page. No pure black, no pure white. */
+        --mn-ink: #0b0a09; /* deepest background — warm near-black */
+        --mn-surface: #131110; /* raised surface / cards */
+        --mn-surface-2: #1a1714; /* nested raised surface */
+        --mn-surface-3: #221e1a; /* hover / active surface */
+        --mn-bone: #f0eae0; /* primary text — warm bone */
+        --mn-bone-dim: #c9c1b5; /* secondary text */
+        --mn-stone: #8b827a; /* muted text / labels */
+        --mn-stone-dim: #5c554e; /* hairline-tone text */
+        --mn-brass: #c2a05e; /* the one accent — antique brass */
+        --mn-brass-bright: #d8b878; /* hover / active brass */
+        --mn-brass-soft: #c2a05e22; /* brass wash for soft fills */
+        --mn-brass-glow: #c2a05e44; /* brass glow for shadows */
+        --mn-hairline: #ffffff0a; /* ghost hairline on dark */
+        --mn-hairline-2: #ffffff14; /* emphasized hairline */
+        --mn-hairline-brass: #c2a05e2e; /* brass-tinted hairline */
+
+        /* Typography */
+        --mn-serif: 'Cormorant Garamond Variable', 'Cormorant Garamond',
+          Georgia, 'Times New Roman', serif;
+        --mn-sans: 'Geist Variable', -apple-system, BlinkMacSystemFont,
+          'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        --mn-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo,
+          Monaco, Consolas, monospace;
+
+        /* Motion — one easing curve family used everywhere */
         --mn-ease: cubic-bezier(0.32, 0.72, 0, 1);
         --mn-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
       }
-      html, body {
-        margin: 0; padding: 0; min-height: 100vh;
-        background-color: var(--mn-black);
-        color: var(--mn-near-white);
-        font-family: var(--mn-font);
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background-color: var(--mn-ink);
+        color: var(--mn-bone);
+        font-family: var(--mn-sans);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
       }
-      /* Spotlight that follows the cursor — driven by --mx/--my set in JS.
-         Fixed, pointer-events-none, low-opacity radial cobalt glow. */
-      .mn-spotlight {
-        position: fixed; inset: 0; z-index: 1; pointer-events: none;
-        background: radial-gradient(
-          640px circle at var(--mx, 50%) var(--my, 0%),
-          rgba(61, 139, 255, 0.07), transparent 60%
-        );
-        transition: background 0.4s var(--mn-ease);
-      }
-      /* Fixed film-grain overlay — adds a physical, analog texture. */
+
+      /* Fixed film-grain overlay — analog cinema texture.
+         Fixed + pointer-events-none per perf guardrails: no scroll repaint. */
       .mn-grain {
-        position: fixed; inset: 0; z-index: 2; pointer-events: none;
-        opacity: 0.035; mix-blend-mode: screen;
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        pointer-events: none;
+        opacity: 0.03;
+        mix-blend-mode: screen;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      /* Subtle warm vignette — evokes a darkened auditorium. */
+      .mn-vignette {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          120% 80% at 50% -10%,
+          rgba(194, 160, 94, 0.04),
+          transparent 55%
+        );
       }
     </style>
   </head>
   <body>
-    <div class="mn-spotlight" aria-hidden="true"></div>
+    <div class="mn-vignette" aria-hidden="true"></div>
     <div class="mn-grain" aria-hidden="true"></div>
     <slot />
   </body>

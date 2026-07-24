@@ -17,8 +17,8 @@ export function ByTimeView({ theaters, now }: ByTimeViewProps) {
       {buckets.map((b, i) => (
         <div
           key={b.hour}
-          className="mn-time-hour"
-          style={{ animationDelay: `${Math.min(i * 0.04, 0.4)}s` }}
+          className="mn-time-hour mn-reveal"
+          style={{ transitionDelay: `${Math.min(i * 0.04, 0.24)}s` }}
         >
           <span className="mn-time-hour-label">{b.hour}</span>
           <div className="mn-time-rows">
@@ -32,7 +32,9 @@ export function ByTimeView({ theaters, now }: ByTimeViewProps) {
                 <span className="mn-time-title">{r.title}</span>
                 <span className="mn-time-theater">{r.theaterName}</span>
                 {r.isVost && <span className="mn-showtime-flag">VOST</span>}
-                {r.isPreview && <span className="mn-showtime-flag">AVANT</span>}
+                {r.isPreview && (
+                  <span className="mn-showtime-flag">AVANT</span>
+                )}
               </div>
             ))}
           </div>

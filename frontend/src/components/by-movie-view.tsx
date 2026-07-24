@@ -21,9 +21,12 @@ export function ByMovieView({ theaters, now }: ByMovieViewProps) {
         return (
           <section
             key={g.title}
-            className="mn-film"
-            style={{ animationDelay: `${Math.min(i * 0.04, 0.4)}s` }}
+            className="mn-film mn-reveal"
+            style={{ transitionDelay: `${Math.min(i * 0.04, 0.24)}s` }}
           >
+            <span className="mn-film-index">
+              {String(i + 1).padStart(2, '0')} / {String(groups.length).padStart(2, '0')}
+            </span>
             <div className="mn-film-header">
               <h2 className="mn-film-title">{g.title}</h2>
               <div className="mn-film-meta">

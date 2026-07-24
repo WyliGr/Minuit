@@ -22,12 +22,14 @@ export function DayStrip({ selectedDay, onSelect, maxOffset }: DayStripProps) {
   });
 
   return (
-    <div className="mn-day-strip">
+    <div className="mn-day-strip" role="tablist" aria-label="Jour">
       {days.map((d) => (
         <button
           key={d.offset}
           className="mn-day-chip"
           data-selected={d.offset === selectedDay}
+          role="tab"
+          aria-selected={d.offset === selectedDay}
           onClick={() => onSelect(d.offset)}
         >
           <span className="mn-day-chip-label">

@@ -12,6 +12,7 @@ import { ByMovieView } from './by-movie-view';
 import { ByTimeView } from './by-time-view';
 import { ScheduleSkeleton } from './skeletons';
 import { EmptyState, ErrorState } from './state-views';
+import { useScrollReveal } from './use-scroll-reveal';
 
 type ViewMode = 'movie' | 'time';
 const MAX_DAY_OFFSET = 30;
@@ -24,7 +25,12 @@ export function DashboardContent() {
   const [view, setView] = useState<ViewMode>('movie');
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => new Date());
-  const topbarRef = useRef<HTMLDivElement>(null);
+
+  // Reveal-on-scroll for the content region. Re-runs when view/day change
+  // so newly-mounted sections animate in. Reduced-motion safe (the hook
+  // checks matchMedia and the CSS forces visible under reduced-motion).
+  const contentRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(contentRef);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 60000);
@@ -34,31 +40,6 @@ export function DashboardContent() {
   useEffect(() => {
     loadDay(selectedDay);
   }, [selectedDay, loadDay]);
-
-  // Spotlight: drive the radial glow via CSS vars on the fixed overlay.
-  // Uses rAF throttling + only updates when the pointer actually moves,
-  // so it never touches React state (no re-renders).
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let raf = 0;
-    let mx = 50;
-    let my = 0;
-    const onMove = (e: PointerEvent) => {
-      mx = (e.clientX / window.innerWidth) * 100;
-      my = (e.clientY / window.innerHeight) * 100;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        document.documentElement.style.setProperty('--mx', `${mx}%`);
-        document.documentElement.style.setProperty('--my', `${my}%`);
-      });
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
 
   const day = days.get(selectedDay);
   const isLoading = loadingDays.has(selectedDay) && !day;
@@ -86,107 +67,132 @@ export function DashboardContent() {
     );
   }, [filteredTheaters]);
 
-  const viewLabel =
-    view === 'movie' ? 'Par film' : 'Par heure';
+  // Split the French displayDate ("vendredi 24 juillet") into a day-name
+  // (italic, brass) and the rest (roman, bone) for the editorial hero.
+  const heroDate = day?.displayDate ?? '';
+  const heroDateParts = heroDate.split(' ');
+  const heroDayName = heroDateParts[0] ?? '';
+  const heroDateRest = heroDateParts.slice(1).join(' ');
 
   return (
     <div className="mn-app">
-      {/* ── Left rail ────────────────────────────────────────────── */}
-      <aside className="mn-rail">
-        <div className="mn-brand">
-          <span className="mn-brand-mark">
-            Min<span>u</span>it
-          </span>
-          <span className="mn-brand-dim">STRBOURG</span>
-        </div>
-
-        <div className="mn-rail-section">
-          <p className="mn-rail-label">Salles</p>
-          {theatersStatus === 'loading' ? (
-            <div
-              className="mn-skeleton-line"
-              style={{ width: '100%', height: 28, marginBottom: 6 }}
-            />
-          ) : (
-            <FilterBar
-              theaters={theaters}
-              selected={selectedSlugs}
-              onChange={setSelectedSlugs}
-            />
-          )}
-        </div>
-      </aside>
-
-      {/* ── Main column ───────────────────────────────────────────── */}
-      <div className="mn-main">
-        <header className="mn-topbar" ref={topbarRef}>
-          <div className="mn-topbar-left">
-            {day && (
-              <span className="mn-date-chip">
-                {day.displayDate.split(' ').slice(0, 3).join(' ')}
-                <span>·</span>
-                J+{day.dayOffset}
-              </span>
-            )}
+      {/* ── Editorial hero band (scrolls away) ─────────────────────── */}
+      <header className="mn-hero mn-container">
+        <div className="mn-hero-top">
+          <div className="mn-wordmark">
+            <span className="mn-wordmark-text">
+              Min<em>u</em>it
+            </span>
+            <span className="mn-wordmark-tag">Strasbourg</span>
           </div>
-          {day && (
-            <div className="mn-stats">
-              <span>
-                <span className="mn-stat-number">{stats.films}</span>{' '}
-                {stats.films > 1 ? 'films' : 'film'}
+          {freshest && (
+            <div className="mn-freshness" title="Dernière mise à jour Allocine">
+              <span className="mn-freshness-dot" aria-hidden="true" />
+              <span className="mn-wordmark-tag">
+                Maj {formatFreshness(freshest, now)}
               </span>
-              <span className="mn-stat-sep">/</span>
-              <span>
-                <span className="mn-stat-number">{stats.shows}</span>{' '}
-                {stats.shows > 1 ? 'séances' : 'séance'}
-              </span>
-              {freshest && (
-                <>
-                  <span className="mn-stat-sep">/</span>
-                  <span className="mn-freshness">
-                    <span className="mn-freshness-dot" />
-                    maj {formatFreshness(freshest, now)}
-                  </span>
-                </>
-              )}
             </div>
           )}
-        </header>
-
-        <DayStrip
-          selectedDay={selectedDay}
-          onSelect={setSelectedDay}
-          maxOffset={MAX_DAY_OFFSET}
-        />
-
-        <div className="mn-command">
-          <ViewToggle view={view} onChange={(v) => setView(v as ViewMode)} />
-          <span className="mn-view-meta">{viewLabel}</span>
         </div>
 
-        <main className="mn-content">
-          {error ? (
-            <ErrorState message={error} onRetry={() => loadDay(selectedDay)} />
-          ) : isLoading ? (
-            <ScheduleSkeleton />
-          ) : !day ? (
-            <ScheduleSkeleton />
-          ) : filteredTheaters.length === 0 ||
-            filteredTheaters.every((t) => t.films.length === 0) ? (
-            <EmptyState />
-          ) : view === 'movie' ? (
-            <ByMovieView theaters={filteredTheaters} now={now} />
-          ) : (
-            <ByTimeView theaters={filteredTheaters} now={now} />
-          )}
-        </main>
+        {day ? (
+          <h1 className="mn-hero-date">
+            <em>{heroDayName}</em>
+            {heroDateRest ? ` ${heroDateRest}` : ''}
+          </h1>
+        ) : (
+          <h1 className="mn-hero-date">
+            <em>Minuit</em>
+          </h1>
+        )}
 
-        <footer className="mn-footer">
-          Données Allocine · cache 6h · {theaters.length} salle
-          {theaters.length > 1 ? 's' : ''} active
-          {theaters.length > 1 ? 's' : ''}
-        </footer>
+        {day && (
+          <div className="mn-hero-stats">
+            <div className="mn-stat">
+              <span className="mn-stat-number">{stats.films}</span>
+              <span className="mn-stat-label">
+                {stats.films > 1 ? 'Films à l\u2019affiche' : 'Film à l\u2019affiche'}
+              </span>
+            </div>
+            <div className="mn-stat">
+              <span className="mn-stat-number">{stats.shows}</span>
+              <span className="mn-stat-label">
+                {stats.shows > 1 ? 'Séances' : 'Séance'}
+              </span>
+            </div>
+            <div className="mn-stat">
+              <span className="mn-stat-number">{filteredTheaters.length}</span>
+              <span className="mn-stat-label">
+                {filteredTheaters.length > 1 ? 'Salles' : 'Salle'}
+              </span>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ── Floating control island (sticky) ──────────────────────── */}
+      <div className="mn-island-wrap">
+        <div className="mn-island">
+          <div className="mn-island-row">
+            {day && (
+              <span className="mn-island-date-chip">
+                J+{day.dayOffset}
+                <span>·</span>
+                {heroDate}
+              </span>
+            )}
+            <DayStrip
+              selectedDay={selectedDay}
+              onSelect={setSelectedDay}
+              maxOffset={MAX_DAY_OFFSET}
+            />
+          </div>
+          <div className="mn-island-row">
+            {theatersStatus === 'loading' ? (
+              <div
+                className="mn-skeleton-line"
+                style={{ width: '100%', height: 34 }}
+              />
+            ) : (
+              <FilterBar
+                theaters={theaters}
+                selected={selectedSlugs}
+                onChange={setSelectedSlugs}
+              />
+            )}
+            <ViewToggle view={view} onChange={(v) => setView(v as ViewMode)} />
+          </div>
+        </div>
       </div>
+
+      {/* ── Content ────────────────────────────────────────────────── */}
+      <main className="mn-content mn-container" ref={contentRef}>
+        {error ? (
+          <ErrorState message={error} onRetry={() => loadDay(selectedDay)} />
+        ) : isLoading ? (
+          <ScheduleSkeleton />
+        ) : !day ? (
+          <ScheduleSkeleton />
+        ) : filteredTheaters.length === 0 ||
+          filteredTheaters.every((t) => t.films.length === 0) ? (
+          <EmptyState />
+        ) : view === 'movie' ? (
+          <ByMovieView theaters={filteredTheaters} now={now} />
+        ) : (
+          <ByTimeView theaters={filteredTheaters} now={now} />
+        )}
+      </main>
+
+      {/* ── Footer ─────────────────────────────────────────────────── */}
+      <footer className="mn-footer mn-container">
+        <div className="mn-footer-row">
+          <span>
+            Données Allocine · cache 6h · {theaters.length} salle
+            {theaters.length > 1 ? 's' : ''}
+          </span>
+          <span>Minuit</span>
+        </div>
+      </footer>
     </div>
   );
 }

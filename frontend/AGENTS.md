@@ -2,33 +2,35 @@
 
 Project-specific guidance for AI coding agents.
 
-<!-- ASTRYX:START -->
-Astryx v0.1.8 · 153 components
-CLI: run every command as `npx astryx <cmd>` (shown below as `astryx ...`).
+## Stack
 
-SETUP (once, in your app entry e.g. main.tsx) — without these, components render unstyled:
-  import "@astryxdesign/core/reset.css";
-  import "@astryxdesign/core/astryx.css";
+- Astro 7 + React 19 islands (the dashboard is a single `client:only="react"` island).
+- Fonts via `@fontsource-variable/*` (Geist, Geist Mono, Cormorant Garamond). Self-hosted, no Google Fonts `<link>`.
+- No CSS framework. All styling is bespoke CSS in `src/styles/global.css`, driven by CSS custom properties defined in `src/layouts/base.astro`.
+- No component library. Every element is hand-built with semantic HTML + tokens.
 
-WORKFLOW — discover, don't guess. Before writing UI:
-1. `astryx build "<idea>"` — START HERE: returns a kit (closest [page] + [block]s + [component]s). No args = full playbook.
-2. `astryx template <name> [--skeleton]` — scaffold the [page]/[block]s it named, or study their layout. Templates are reference code.
-3. `astryx component <Name>` — props + examples for every component you use.
+## Design language — "Midnight Brass"
 
-RULES:
-- No <div> — components do all layout/spacing. Full page → AppShell; sidebar nav → SideNav.
-- Frame first: pick the shell (AppShell / Layout+LayoutPanel) and budget regions in px BEFORE writing content (`astryx docs layout`).
-- Dense data = rows (Table, List/Item) edge-to-edge — never Card-wrapped list items. Card = dashboard widgets, galleries, settings groups only.
-- Status → StatusDot/Token; Badge only for counts and enumerated states, never decoration.
-- Custom styling: component props first; else style/className with tokens — var(--color-*|--spacing-*|--radius-*). No raw hex/px. (No StyleX/Tailwind compiler here — don't use xstyle/utility classes.)
-- Tokens for every value (`astryx docs tokens`). Brand/accent via `astryx theme` — never override --color-* in :root.
-- SELF-CHECK before you finish: re-read the file and replace any raw <div>/<span> layout, imported .css/@apply, or hardcoded value (#hex, 16px) with the component or a token (var(--color-*|--spacing-*|…)). If unsure a component/prop exists, run `astryx component <Name>` / `astryx search "<thing>"`; don't hand-roll CSS.
+Warm-ink dark mode with a single antique-brass accent. Cormorant Garamond (serif) for display / film titles, Geist (grotesk) for UI, Geist Mono for times / stats / labels. Motivated motion only (scroll-reveal, hover lift, one freshness pulse). Reduced-motion collapses everything to static.
 
-MORE CLI:
-  search "<query>"   find any component / hook / doc / template / block
-  component --list   153 components by category
-  template --list    page + block recipes
-  docs <topic>       color, elevation, icons, illustrations, internationalization, layout, migration, motion, principles, shape, spacing, styling, theme, tokens, typography
-  swizzle <Name>     eject component source for deep customization
-  upgrade --apply    run after any @astryxdesign/core bump
-<!-- ASTRYX:END -->
+## Dev commands
+
+```sh
+npm run dev       # astro dev on :4321, proxies /api -> :3333
+npm run build     # astro build -> dist/
+npm run check     # astro check (ts + a11y hints)
+```
+
+Verification order: `check` -> `build`. Run both before declaring a task done.
+
+## Architecture
+
+- `src/pages/index.astro` mounts `Dashboard` (`client:only="react"`).
+- `Dashboard` -> `DashboardContent` (the app shell: editorial hero band + sticky control island + content).
+- State + data fetching lives in `src/lib/use-schedule.ts` (theaters list + per-day schedule cache). View layer is pure.
+- Schedule transforms (group-by-movie, group-by-time, formatting) in `src/lib/schedule.ts` are pure and tested-by-use.
+- API client in `src/lib/api.ts` proxies to the Adonis backend via Astro's Vite proxy in dev; set `PUBLIC_API_BASE` for prod.
+
+## Backend contract
+
+See `docs/API.md`. Two endpoints: `GET /api/v1/theaters` (instant list) and `GET /api/v1/theater?days=N` or `?days=FROM-TO` (cached schedules). No auth.
