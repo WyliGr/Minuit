@@ -13,36 +13,42 @@ export function ByMovieView({ theaters, now }: ByMovieViewProps) {
 
   return (
     <div>
-      {groups.map((g) => {
+      {groups.map((g, i) => {
         const totalShows = g.venues.reduce(
           (n, v) => n + v.showtimes.length,
           0,
         );
         return (
-          <section key={g.title} className="minuit-film">
-            <div className="minuit-film-header">
-              <h2 className="minuit-film-title">{g.title}</h2>
-              <span className="minuit-film-runtime">
-                {formatRuntime(g.runtime)} · {totalShows}{' '}
-                {totalShows > 1 ? 'séances' : 'séance'}
-              </span>
+          <section
+            key={g.title}
+            className="mn-film"
+            style={{ animationDelay: `${Math.min(i * 0.04, 0.4)}s` }}
+          >
+            <div className="mn-film-header">
+              <h2 className="mn-film-title">{g.title}</h2>
+              <div className="mn-film-meta">
+                <span className="mn-film-runtime">{formatRuntime(g.runtime)}</span>
+                <span className="mn-film-count">
+                  {totalShows} {totalShows > 1 ? 'séances' : 'séance'}
+                </span>
+              </div>
             </div>
             {g.venues.map((v) => (
-              <div key={v.slug} className="minuit-venue">
-                <span className="minuit-venue-name">{v.name}</span>
-                <div className="minuit-showtimes">
+              <div key={v.slug} className="mn-venue">
+                <span className="mn-venue-name">{v.name}</span>
+                <div className="mn-showtimes">
                   {v.showtimes.map((s) => (
                     <a
                       key={s.startsAt}
-                      className="minuit-showtime"
+                      className="mn-showtime"
                       data-past={isPast(s.startsAt, now)}
                       href={`#showtime-${s.startsAt}`}
                       onClick={(e) => e.preventDefault()}
                     >
                       {s.time}
-                      {s.isVost && <span className="minuit-showtime-flag">VOST</span>}
+                      {s.isVost && <span className="mn-showtime-flag">VOST</span>}
                       {s.isPreview && (
-                        <span className="minuit-showtime-flag">AVANT</span>
+                        <span className="mn-showtime-flag">AVANT</span>
                       )}
                     </a>
                   ))}

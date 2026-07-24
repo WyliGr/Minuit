@@ -5,10 +5,6 @@ interface DayStripProps {
 }
 
 const DAYS_FR = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-const MONTHS_FR = [
-  'jan', 'fév', 'mar', 'avr', 'mai', 'jun',
-  'jul', 'aoû', 'sep', 'oct', 'nov', 'déc',
-];
 
 export function DayStrip({ selectedDay, onSelect, maxOffset }: DayStripProps) {
   const today = new Date();
@@ -20,25 +16,24 @@ export function DayStrip({ selectedDay, onSelect, maxOffset }: DayStripProps) {
       offset: i,
       dayName: DAYS_FR[d.getDay()],
       dayNum: d.getDate(),
-      monthName: MONTHS_FR[d.getMonth()],
       isToday: i === 0,
       isTomorrow: i === 1,
     };
   });
 
   return (
-    <div className="minuit-day-strip">
+    <div className="mn-day-strip">
       {days.map((d) => (
         <button
           key={d.offset}
-          className="minuit-day-chip"
+          className="mn-day-chip"
           data-selected={d.offset === selectedDay}
           onClick={() => onSelect(d.offset)}
         >
-          <span className="minuit-day-chip-label">
-            {d.isToday ? "Auj." : d.isTomorrow ? "Dem." : d.dayName}
+          <span className="mn-day-chip-label">
+            {d.isToday ? 'AUJ' : d.isTomorrow ? 'DEM' : d.dayName.toUpperCase()}
           </span>
-          <span className="minuit-day-chip-day">{d.dayNum}</span>
+          <span className="mn-day-chip-day">{d.dayNum}</span>
         </button>
       ))}
     </div>

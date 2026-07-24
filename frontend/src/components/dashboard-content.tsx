@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSchedule } from '../lib/use-schedule';
 import {
   countAllShowtimes,
@@ -24,6 +24,7 @@ export function DashboardContent() {
   const [view, setView] = useState<ViewMode>('movie');
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => new Date());
+  const topbarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 60000);
@@ -33,6 +34,31 @@ export function DashboardContent() {
   useEffect(() => {
     loadDay(selectedDay);
   }, [selectedDay, loadDay]);
+
+  // Spotlight: drive the radial glow via CSS vars on the fixed overlay.
+  // Uses rAF throttling + only updates when the pointer actually moves,
+  // so it never touches React state (no re-renders).
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    let mx = 50;
+    let my = 0;
+    const onMove = (e: PointerEvent) => {
+      mx = (e.clientX / window.innerWidth) * 100;
+      my = (e.clientY / window.innerHeight) * 100;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        document.documentElement.style.setProperty('--mx', `${mx}%`);
+        document.documentElement.style.setProperty('--my', `${my}%`);
+      });
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const day = days.get(selectedDay);
   const isLoading = loadingDays.has(selectedDay) && !day;
@@ -60,121 +86,107 @@ export function DashboardContent() {
     );
   }, [filteredTheaters]);
 
+  const viewLabel =
+    view === 'movie' ? 'Par film' : 'Par heure';
+
   return (
-    <div className="minuit-app">
-      {/* ── Header ──────────────────────────────────────────── */}
-      <header className="minuit-header">
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            padding:
-              'var(--spacing-4, 16px) var(--spacing-6, 24px) var(--spacing-3, 12px)',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 'var(--spacing-4, 16px)',
-              marginBottom: 'var(--spacing-4, 16px)',
-              flexWrap: 'wrap',
-            }}
-          >
-            <h1 className="minuit-wordmark">
-              Min<span className="minuit-wordmark-accent">u</span>it
-            </h1>
+    <div className="mn-app">
+      {/* ── Left rail ────────────────────────────────────────────── */}
+      <aside className="mn-rail">
+        <div className="mn-brand">
+          <span className="mn-brand-mark">
+            Min<span>u</span>it
+          </span>
+          <span className="mn-brand-dim">STRBOURG</span>
+        </div>
+
+        <div className="mn-rail-section">
+          <p className="mn-rail-label">Salles</p>
+          {theatersStatus === 'loading' ? (
+            <div
+              className="mn-skeleton-line"
+              style={{ width: '100%', height: 28, marginBottom: 6 }}
+            />
+          ) : (
+            <FilterBar
+              theaters={theaters}
+              selected={selectedSlugs}
+              onChange={setSelectedSlugs}
+            />
+          )}
+        </div>
+      </aside>
+
+      {/* ── Main column ───────────────────────────────────────────── */}
+      <div className="mn-main">
+        <header className="mn-topbar" ref={topbarRef}>
+          <div className="mn-topbar-left">
             {day && (
-              <div className="minuit-stats">
-                <span>
-                  <span className="minuit-stat-number">{stats.films}</span>{' '}
-                  {stats.films > 1 ? 'films' : 'film'}
-                </span>
-                <span className="minuit-stat-separator">·</span>
-                <span>
-                  <span className="minuit-stat-number">{stats.shows}</span>{' '}
-                  {stats.shows > 1 ? 'séances' : 'séance'}
-                </span>
-                {freshest && (
-                  <>
-                    <span className="minuit-stat-separator">·</span>
-                    <span className="minuit-freshness">
-                      <span className="minuit-freshness-dot" />
-                      maj {formatFreshness(freshest, now)}
-                    </span>
-                  </>
-                )}
-              </div>
+              <span className="mn-date-chip">
+                {day.displayDate.split(' ').slice(0, 3).join(' ')}
+                <span>·</span>
+                J+{day.dayOffset}
+              </span>
             )}
           </div>
+          {day && (
+            <div className="mn-stats">
+              <span>
+                <span className="mn-stat-number">{stats.films}</span>{' '}
+                {stats.films > 1 ? 'films' : 'film'}
+              </span>
+              <span className="mn-stat-sep">/</span>
+              <span>
+                <span className="mn-stat-number">{stats.shows}</span>{' '}
+                {stats.shows > 1 ? 'séances' : 'séance'}
+              </span>
+              {freshest && (
+                <>
+                  <span className="mn-stat-sep">/</span>
+                  <span className="mn-freshness">
+                    <span className="mn-freshness-dot" />
+                    maj {formatFreshness(freshest, now)}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </header>
 
-          <DayStrip
-            selectedDay={selectedDay}
-            onSelect={setSelectedDay}
-            maxOffset={MAX_DAY_OFFSET}
-          />
+        <DayStrip
+          selectedDay={selectedDay}
+          onSelect={setSelectedDay}
+          maxOffset={MAX_DAY_OFFSET}
+        />
+
+        <div className="mn-command">
+          <ViewToggle view={view} onChange={(v) => setView(v as ViewMode)} />
+          <span className="mn-view-meta">{viewLabel}</span>
         </div>
-      </header>
 
-      {/* ── Toolbar ─────────────────────────────────────────── */}
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          padding:
-            'var(--spacing-4, 16px) var(--spacing-6, 24px) var(--spacing-2, 8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 'var(--spacing-4, 16px)',
-          flexWrap: 'wrap',
-        }}
-      >
-        {theatersStatus === 'loading' ? (
-          <div
-            className="minuit-skeleton-line"
-            style={{ width: 300, height: 32, borderRadius: 9999 }}
-          />
-        ) : (
-          <FilterBar
-            theaters={theaters}
-            selected={selectedSlugs}
-            onChange={setSelectedSlugs}
-          />
-        )}
-        <ViewToggle view={view} onChange={(v) => setView(v as ViewMode)} />
+        <main className="mn-content">
+          {error ? (
+            <ErrorState message={error} onRetry={() => loadDay(selectedDay)} />
+          ) : isLoading ? (
+            <ScheduleSkeleton />
+          ) : !day ? (
+            <ScheduleSkeleton />
+          ) : filteredTheaters.length === 0 ||
+            filteredTheaters.every((t) => t.films.length === 0) ? (
+            <EmptyState />
+          ) : view === 'movie' ? (
+            <ByMovieView theaters={filteredTheaters} now={now} />
+          ) : (
+            <ByTimeView theaters={filteredTheaters} now={now} />
+          )}
+        </main>
+
+        <footer className="mn-footer">
+          Données Allocine · cache 6h · {theaters.length} salle
+          {theaters.length > 1 ? 's' : ''} active
+          {theaters.length > 1 ? 's' : ''}
+        </footer>
       </div>
-
-      {/* ── Content ─────────────────────────────────────────── */}
-      <main
-        style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          padding: 'var(--spacing-2, 8px) var(--spacing-6, 24px) var(--spacing-6, 24px)',
-        }}
-      >
-        {error ? (
-          <ErrorState message={error} onRetry={() => loadDay(selectedDay)} />
-        ) : isLoading ? (
-          <ScheduleSkeleton />
-        ) : !day ? (
-          <ScheduleSkeleton />
-        ) : filteredTheaters.length === 0 ||
-          filteredTheaters.every((t) => t.films.length === 0) ? (
-          <EmptyState />
-        ) : view === 'movie' ? (
-          <ByMovieView theaters={filteredTheaters} now={now} />
-        ) : (
-          <ByTimeView theaters={filteredTheaters} now={now} />
-        )}
-      </main>
-
-      {/* ── Footer ──────────────────────────────────────────── */}
-      <footer className="minuit-footer">
-        Données Allocine · cache 6h · {theaters.length} salle
-        {theaters.length > 1 ? 's' : ''} active{theaters.length > 1 ? 's' : ''}
-      </footer>
     </div>
   );
 }

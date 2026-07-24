@@ -1,8 +1,8 @@
 export function EmptyState() {
   return (
-    <div className="minuit-empty">
-      <p className="minuit-empty-title">Aucune séance</p>
-      <p className="minuit-empty-desc">
+    <div className="mn-empty">
+      <p className="mn-empty-title">Aucune séance</p>
+      <p className="mn-empty-desc">
         Aucun film ne passe dans les salles sélectionnées ce jour. Essayez un
         autre jour ou élargissez les filtres.
       </p>
@@ -18,10 +18,10 @@ export function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="minuit-error">
-      <p className="minuit-error-title">Impossible de charger les séances</p>
-      <p className="minuit-error-desc">{message}</p>
-      <button className="minuit-error-retry" onClick={onRetry}>
+    <div className="mn-error">
+      <p className="mn-error-title">Impossible de charger les séances</p>
+      <p className="mn-error-desc">{message}</p>
+      <button className="mn-error-retry" onClick={onRetry}>
         Réessayer
       </button>
     </div>

@@ -20,18 +20,18 @@ export function FilterBar({ theaters, selected, onChange }: FilterBarProps) {
   const allSelected = selected.size === 0;
 
   return (
-    <div className="minuit-filters">
+    <div className="mn-filters">
       <button
-        className="minuit-theater-pill"
+        className="mn-theater-pill"
         data-selected={allSelected}
         onClick={() => onChange(new Set())}
       >
-        Toutes
+        Toutes les salles
       </button>
       {theaters.map((t) => (
         <button
           key={t.slug}
-          className="minuit-theater-pill"
+          className="mn-theater-pill"
           data-selected={selected.has(t.slug)}
           onClick={() => toggle(t.slug)}
         >
