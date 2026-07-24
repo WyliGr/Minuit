@@ -40,10 +40,16 @@ export function Hero({ day, stats }: HeroProps) {
         <div>
           <div className="mn-hero-eyebrow">
             <span className="mn-hero-eyebrow-bar" aria-hidden="true" />
-            <span>Séances en salle</span>
+            <span className="mn-hero-eyebrow-label-desktop">Séances en salle</span>
+            <span className="mn-hero-eyebrow-label-mobile">
+              {dayName.charAt(0).toUpperCase() + dayName.slice(1)}
+            </span>
           </div>
           <h1 className="mn-hero-date">
-            {dayName.charAt(0).toUpperCase() + dayName.slice(1)}
+            <span className="mn-hero-date-desktop">
+              {dayName.charAt(0).toUpperCase() + dayName.slice(1)}
+            </span>
+            <span className="mn-hero-date-mobile">{dateRest}</span>
           </h1>
           <p className="mn-hero-date-num">
             {dateRest} · J{day.dayOffset === 0 ? '' : '+'}
@@ -72,6 +78,14 @@ export function Hero({ day, stats }: HeroProps) {
               </span>
             </div>
           </div>
+
+          <p className="mn-hero-meta-mobile">
+            <strong>{stats.shows}</strong>{' '}
+            {stats.shows > 1 ? 'séances' : 'séance'}
+            {' · '}
+            <strong>{stats.theaters}</strong>{' '}
+            {stats.theaters > 1 ? 'salles' : 'salle'}
+          </p>
 
           <div className="mn-hero-meta" aria-label="Détails">
             <div className="mn-hero-meta-row">

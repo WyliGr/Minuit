@@ -89,6 +89,7 @@
   /* ── Layout ────────────────────────────────────────────────────────── */
   --container-max:   1280px;
   --container-pad:   clamp(20px, 4vw, 48px);
+  --container-pad-mobile: 24px;
   --content-max:     960px;  /* main column for schedules */
 
   /* ── Motion ──────────────────────────────────────────────────────────

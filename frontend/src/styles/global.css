@@ -162,6 +162,19 @@ body::after {
   background: var(--color-line-strong);
 }
 
+/* Hide the page scrollbar on touch devices — the OS shows its own
+   transient indicator during scroll, and a permanent chrome eats
+   valuable screen width on a phone. */
+@media (pointer: coarse) {
+  html {
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
 /* ── 3. A11y ─────────────────────────────────────────────────────────── */
 
 .mn-skip {
@@ -331,6 +344,14 @@ body::after {
   background: var(--color-accent);
 }
 
+.mn-hero-eyebrow-label-mobile {
+  display: none;
+}
+
+.mn-hero-date-mobile {
+  display: none;
+}
+
 .mn-hero-date {
   font-family: var(--font-sans);
   font-size: clamp(var(--text-4xl), 7vw, var(--text-6xl));
@@ -420,6 +441,12 @@ body::after {
 .mn-hero-meta-val {
   color: var(--color-text);
   font-variant-numeric: tabular-nums;
+}
+
+/* Mobile-only meta line. Hidden on desktop, shown via the @media
+   (max-width: 640px) override below. */
+.mn-hero-meta-mobile {
+  display: none;
 }
 
 /* ── 7. Controls island (sticky) ─────────────────────────────────────── */
@@ -1250,16 +1277,13 @@ body::after {
 }
 
 /* ── 13. Responsive overrides ──────────────────────────────────────────
-   Mobile-first philosophy baked into the base styles above; this block
-   adjusts the few elements that need breakpoint-specific behavior:
-   - the hero stats (3 cols → 3 cols, smaller at narrow)
-   - the by-movie venue grid (200px 1fr → stacked, venue as a label row)
-   - the by-time row layout (4 cols → 2 cols, time pinned left)
-   - the film head (poster + text + meta → poster + text on first row,
-     meta below)
-   - the controls island (already handled in the primary/secondary row
-     markup; the CSS just adjusts padding)
-   - touch targets: chips and pills get a 44px-min tap area at <=640.
+   Mobile-first. The hero is the first thing the user scrolls past — on
+   phone it has to be small, dense, and lead with what's playing. The
+   desktop hero (large display date, hairlined stat block, meta sidebar)
+   is replaced at <=640 by:
+     - a horizontal stat strip ("12 films · 47 séances · 5 salles")
+     - the date and day-of-week as inline mono text
+     - no eyebrow, no meta block, no big typography
    Breakpoints: 1024 (lg), 768 (md), 640 (sm), 480 (xs). */
 
 @media (max-width: 1024px) {
@@ -1322,38 +1346,118 @@ body::after {
 }
 
 @media (max-width: 640px) {
+  /* ── Container: more breathing room on phone ────────────────────
+     Bump horizontal padding from clamp(20,4vw,48) → 24px so left-
+     aligned text (date, eyebrow) and right-aligned text (meta line)
+     don't both feel glued to the screen edges. */
+
+  .mn-container,
+  .mn-content {
+    padding-left: var(--container-pad-mobile);
+    padding-right: var(--container-pad-mobile);
+  }
+
+  /* ── Hero: editorial phone hero ─────────────────────────────────
+     Date is the lead, day-of-week is the eyebrow, the only number
+     that matters sits in a right-aligned meta line. The 3-cell
+     desktop stat grid is hidden — it doesn't survive the width, and
+     we don't need three numbers when one is enough. */
+
   .mn-hero {
-    padding: var(--space-12) 0 var(--space-8);
+    padding: var(--space-8) 0 var(--space-6);
   }
-  .mn-hero-eyebrow {
-    margin-bottom: var(--space-6);
+
+  /* Reorder: lead with the date, push the side block to the bottom
+     where it acts as a single meta line, not a stat grid. Inset the
+     whole grid from the container's left edge so the date and the
+     right-aligned meta line both feel "inside" the screen, not
+     glued to the edges. */
+  .mn-hero-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-left: var(--space-4);
   }
-  .mn-hero-date {
-    font-size: var(--text-4xl);
-  }
-  .mn-hero-date-num {
-    font-size: var(--text-xl);
+  .mn-hero-grid > div:nth-child(1) {
+    order: 1;
   }
   .mn-hero-side {
-    flex-direction: column;
-    gap: var(--space-6);
+    order: 2;
   }
-  .mn-hero-stats {
-    grid-template-columns: repeat(3, 1fr);
+
+  .mn-hero-eyebrow {
+    margin-bottom: var(--space-3);
   }
-  .mn-stat:nth-child(3) {
-    grid-column: auto;
-  }
-  .mn-stat-value {
-    font-size: var(--text-xl);
-  }
-  .mn-nav-status-text,
-  .mn-nav-divider {
+
+  /* Swap which eyebrow text shows. On desktop the label is "Séances
+     en salle"; on mobile the day-of-week moves up here so the date
+     below can lead. */
+  .mn-hero-eyebrow-label-desktop {
     display: none;
   }
-  .mn-island {
-    top: 56px;
+  .mn-hero-eyebrow-label-mobile {
+    display: inline;
   }
+
+  /* Swap which date span shows. Desktop shows the day name as a
+     big h1 ("Vendredi"); mobile shows the full date ("24 juillet")
+     because the day name is already in the eyebrow. */
+  .mn-hero-date-desktop {
+    display: none;
+  }
+  .mn-hero-date-mobile {
+    display: inline;
+  }
+
+  .mn-hero-date {
+    font-size: var(--text-3xl);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-tight);
+  }
+  .mn-hero-date-num {
+    display: none;
+  }
+
+  /* Side block becomes a single right-aligned meta line. The desktop
+     stat grid and meta rows are hidden — `.mn-hero-meta-mobile` (added
+     in the JSX) carries the count instead. */
+  .mn-hero-stats,
+  .mn-hero-meta {
+    display: none;
+  }
+  .mn-hero-meta-mobile {
+    display: block;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-text-2);
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-line);
+  }
+  .mn-hero-meta-mobile strong {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+  }
+
+  /* ── Nav: drop the dot, keep just the count ──────────────────── */
+  .mn-nav-status-text,
+  .mn-nav-divider,
+  .mn-nav-status-dot {
+    display: none;
+  }
+  .mn-nav {
+    height: 48px;
+  }
+  .mn-nav-row {
+    height: 48px;
+  }
+  .mn-island {
+    top: 48px;
+  }
+
+  /* ── Controls: tighter, icon-only view toggle ────────────────── */
   .mn-island-row-primary {
     gap: var(--space-2);
   }
@@ -1371,6 +1475,11 @@ body::after {
   .mn-poster {
     width: 48px;
   }
+
+  /* ── Section head: more compact ───────────────────────────────── */
+  .mn-section-head {
+    padding: var(--space-6) 0 var(--space-3);
+  }
 }
 
 @media (max-width: 480px) {
@@ -1378,7 +1487,7 @@ body::after {
     font-size: var(--text-lg);
   }
   .mn-hero-date {
-    font-size: var(--text-3xl);
+    font-size: var(--text-xl);
   }
   .mn-day-chip {
     min-width: 44px;
@@ -1387,4 +1496,6 @@ body::after {
   .mn-time-bucket-hour {
     font-size: var(--text-xl);
   }
+  /* Footer stays horizontal — "Made with ♥ by Wyliam" and "Minuit"
+     on the same row, separated by space-between. */
 }
