@@ -5,12 +5,15 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'api.theater.index': { paramsTuple?: []; params?: {} }
+    'api.theaters.index': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'api.theater.index': { paramsTuple?: []; params?: {} }
+    'api.theaters.index': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'api.theater.index': { paramsTuple?: []; params?: {} }
+    'api.theaters.index': { paramsTuple?: []; params?: {} }
   }
 }
 declare module '@adonisjs/core/types/http' {

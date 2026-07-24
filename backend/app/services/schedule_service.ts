@@ -9,15 +9,22 @@ import AllocineService from '#services/allocine_service'
 export type TheaterSlice = {
   slug: string
   name: string
+  lastFetchedAt: string
   films: SchedulePayload['films']
 }
 
-export type SchedulesResponse = {
+export type DaySchedules = {
   date: string
   dayOffset: number
   displayDate: string
   generatedAt: string
   theaters: TheaterSlice[]
+}
+
+export type SchedulesResponse = DaySchedules & {}
+
+export type SchedulesRangeResponse = {
+  days: DaySchedules[]
 }
 
 function ttlMinutes(): number {
@@ -28,9 +35,37 @@ function isStale(lastFetchedAt: DateTime, now: DateTime): boolean {
   return now.diff(lastFetchedAt, 'minutes').minutes > ttlMinutes()
 }
 
+export function parseDaysParam(days: string | number | undefined): number[] {
+  if (days === undefined) return [0]
+  if (typeof days === 'number') return [days]
+
+  const [from, to] = days.split('-').map((n) => Number.parseInt(n, 10))
+  const offsets: number[] = []
+  for (let i = from; i <= to; i++) offsets.push(i)
+  return offsets
+}
+
 export default class ScheduleService {
-  async getSchedules(dayOffset: number): Promise<SchedulesResponse> {
+  async getSchedules(dayOffsets: number[]): Promise<SchedulesResponse | SchedulesRangeResponse> {
+    if (dayOffsets.length === 1) {
+      return this.getSchedulesForDay(dayOffsets[0]!)
+    }
+    return this.getSchedulesRange(dayOffsets)
+  }
+
+  async getSchedulesForDay(dayOffset: number): Promise<SchedulesResponse> {
     const now = DateTime.now()
+    const day = await this.resolveDay(dayOffset, now)
+    return day
+  }
+
+  async getSchedulesRange(dayOffsets: number[]): Promise<SchedulesRangeResponse> {
+    const now = DateTime.now()
+    const days = await Promise.all(dayOffsets.map((offset) => this.resolveDay(offset, now)))
+    return { days }
+  }
+
+  private async resolveDay(dayOffset: number, now: DateTime): Promise<DaySchedules> {
     const target = now.plus({ days: dayOffset })
     const formattedDate = target.toISODate()!
     const displayDate = target.setLocale('fr-FR').toLocaleString({
@@ -66,7 +101,12 @@ export default class ScheduleService {
       .first()
 
     if (existing && !isStale(existing.lastFetchedAt, now)) {
-      return { slug: theater.slug, name: theater.name, films: existing.payload.films }
+      return {
+        slug: theater.slug,
+        name: theater.name,
+        lastFetchedAt: existing.lastFetchedAt.toISO()!,
+        films: existing.payload.films,
+      }
     }
 
     const allocine = new AllocineService()
@@ -74,7 +114,12 @@ export default class ScheduleService {
 
     await this.upsertCache(theater.id, formattedDate, payload, now)
 
-    return { slug: theater.slug, name: theater.name, films: payload.films }
+    return {
+      slug: theater.slug,
+      name: theater.name,
+      lastFetchedAt: now.toISO()!,
+      films: payload.films,
+    }
   }
 
   private async upsertCache(

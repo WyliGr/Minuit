@@ -47,26 +47,37 @@ paths:
       tags: [Schedules]
       summary: Get theater schedules
       description: |
-        Returns movie showtimes for all active theaters for a given day offset.
+        Returns movie showtimes for all active theaters.
+
+        **Single day** (`days=N`): returns a flat day object with `theaters[]`.
+        **Multi-day range** (`days=FROM-TO`): returns `{ days: [...] }` where each
+        element has the same shape as the single-day response.
 
         - `days=0` (default): today. Past showtimes are filtered out.
         - `days=1`: tomorrow. All showtimes included.
+        - `days=0-6`: a 7-day range (today through next 6 days).
         - `days=N`: N days from today (0-30).
+        - `days=FROM-TO`: inclusive range, both bounds 0-30, FROM <= TO.
 
-        The response includes one entry per active theater, each containing
-        its films and their showtimes. Showtimes are sorted chronologically.
+        Showtimes are sorted chronologically. Each theater slice includes
+        `lastFetchedAt` (when Allocine was last fetched for this theater+date).
       operationId: getTheaterSchedules
       parameters:
         - name: days
           in: query
           description: |
-            Day offset from today (0 = today, 1 = tomorrow, etc.).
-            Must be between 0 and 30. Defaults to 0 if omitted.
+            Day offset or inclusive range from today.
+            - Single number: `0` (default), `1`, ... up to `30`.
+            - Range string: `"0-6"` for today through 6 days from now.
+            Defaults to `0` if omitted.
           required: false
           schema:
-            type: integer
-            minimum: 0
-            maximum: 30
+            oneOf:
+              - type: integer
+                minimum: 0
+                maximum: 30
+              - type: string
+                pattern: '^\d{1,2}-\d{1,2}$'
             default: 0
           examples:
             today:
@@ -78,13 +89,18 @@ paths:
             nextWeek:
               value: 7
               summary: One week from today
+            weekRange:
+              value: 0-6
+              summary: 7-day range (today + next 6 days)
       responses:
         '200':
           description: Successfully retrieved schedules
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SchedulesResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/SchedulesResponse'
+                  - $ref: '#/components/schemas/SchedulesRangeResponse'
               example:
                 date: '2026-07-24'
                 dayOffset: 0
@@ -93,6 +109,7 @@ paths:
                 theaters:
                   - slug: ugc-cine-cite
                     name: UGC Ciné Cité
+                    lastFetchedAt: '2026-07-24T14:03:11.000Z'
                     films:
                       - title: DUNE PART TWO
                         runtime: 166
@@ -101,12 +118,9 @@ paths:
                             startsAt: '2026-07-24T14:30:00'
                             isVost: false
                             isPreview: false
-                          - time: '17:00'
-                            startsAt: '2026-07-24T17:00:00'
-                            isVost: true
-                            isPreview: false
                   - slug: star-st-exupery
                     name: Star St-Exupéry
+                    lastFetchedAt: '2026-07-24T14:03:11.000Z'
                     films: []
         '422':
           description: Validation error (invalid or out-of-range `days` parameter)
@@ -116,12 +130,35 @@ paths:
                 $ref: '#/components/schemas/ValidationError'
               example:
                 errors:
-                  - message: The days field must be a number
-                    rule: number
+                  - message: The days field must be a number (0-30) or a range like "0-6"
+                    rule: days.format
                     field: days
-                  - message: The days field must be at least 0
-                    rule: min
-                    field: days
+
+  /api/v1/theaters:
+    get:
+      tags: [Schedules]
+      summary: List active theaters
+      description: |
+        Returns the list of active theaters (slug, name, isActive).
+        This endpoint does NOT call Allocine — it reads directly from the
+        `theaters` table and returns instantly. Use it to render filter bars
+        or theater lists before schedule data has loaded.
+      operationId: listTheaters
+      responses:
+        '200':
+          description: Theater list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TheatersResponse'
+              example:
+                theaters:
+                  - slug: ugc-cine-cite
+                    name: UGC Ciné Cité
+                    isActive: true
+                  - slug: le-cosmos
+                    name: Le Cosmos
+                    isActive: true
 
 components:
   schemas:
@@ -164,9 +201,43 @@ components:
           items:
             $ref: '#/components/schemas/TheaterSlice'
 
+    SchedulesRangeResponse:
+      type: object
+      required: [days]
+      properties:
+        days:
+          type: array
+          description: One day object per offset in the requested range, in ascending order.
+          items:
+            $ref: '#/components/schemas/SchedulesResponse'
+
+    TheatersResponse:
+      type: object
+      required: [theaters]
+      properties:
+        theaters:
+          type: array
+          description: Active theaters, ordered by theater ID. Does NOT include schedule data.
+          items:
+            $ref: '#/components/schemas/TheaterListItem'
+
+    TheaterListItem:
+      type: object
+      required: [slug, name, isActive]
+      properties:
+        slug:
+          type: string
+          example: ugc-cine-cite
+        name:
+          type: string
+          example: UGC Ciné Cité
+        isActive:
+          type: boolean
+          example: true
+
     TheaterSlice:
       type: object
-      required: [slug, name, films]
+      required: [slug, name, lastFetchedAt, films]
       properties:
         slug:
           type: string
@@ -176,6 +247,11 @@ components:
           type: string
           description: Display name of the theater.
           example: UGC Ciné Cité
+        lastFetchedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when Allocine was last fetched for this theater+date. Use this (not `generatedAt`) to display data freshness.
+          example: '2026-07-24T14:03:11.000Z'
         films:
           type: array
           description: Movies playing at this theater on the target date. Empty if no showtimes.
@@ -237,8 +313,8 @@ components:
               rule:
                 type: string
                 description: VineJS validation rule that failed.
-                enum: [number, min, max]
-                example: number
+                enum: [days.format, days.range]
+                example: days.format
               field:
                 type: string
                 description: The query parameter that failed validation.

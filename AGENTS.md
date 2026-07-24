@@ -36,6 +36,7 @@ Verification order: `format` -> `lint` -> `typecheck` -> `build`. Run all four b
 - **Dev server port conflicts:** if `PORT=3333` is already in use, `ace serve` silently binds to a random port. Check the startup banner for the actual `Server address:` line before curling. Stale `node-MainThread` processes (named differently from `ace serve`) can hold the port after kills — use `ss -tlnp | grep :3333` and `kill -9 <pid>` directly.
 - **Allocine `runtime` is a formatted string** like `"3h 07min"`, not a number. `parseRuntime()` in `allocine_service.ts` converts to minutes. The VineJS validator types it as `vine.string()`.
 - **VineJS `vine.record()` takes ONE arg** (value schema), not `(key, value)`. Keys are always strings.
+- **VineJS union + query params:** query string values arrive as strings, so `typeof value === 'number'` conditionals never match. The `days` param uses `vine.createRule` with `field.mutate()` to normalize both `0` (number) and `"0-6"` (range string) into a single validated value — see `theater_query.ts`.
 - **`import type` for model classes** used only in type positions. ESLint enforces `@typescript-eslint/consistent-type-imports` — `AllocineService` uses `import type Theater` because it never instantiates `Theater`. `ScheduleService` uses `import Theater` (value) because it calls `Theater.query()`.
 - **`Number.parseInt`, not `parseInt`** — ESLint rule `@unicorn/prefer-number-properties` is on.
 
@@ -65,4 +66,10 @@ Edit the `theaters` table directly (via `node ace repl`, a migration, or SQL). C
 
 ## Response shape
 
-`GET /api/v1/theater?days=N` returns `{ date, dayOffset, displayDate, generatedAt, theaters: [{ slug, name, films: [{ title, runtime, showtimes: [{ time, startsAt, isVost, isPreview }] }] }] }`. This is a redesign of the original n8n shape (which merged by movie title across theaters) — approved by the user.
+`GET /api/v1/theater?days=N` (single day) returns `{ date, dayOffset, displayDate, generatedAt, theaters: [{ slug, name, lastFetchedAt, films: [{ title, runtime, showtimes: [{ time, startsAt, isVost, isPreview }] }] }] }`.
+
+`GET /api/v1/theater?days=FROM-TO` (range) returns `{ days: [ <same shape as single>, ... ] }`.
+
+`GET /api/v1/theaters` returns `{ theaters: [{ slug, name, isActive }] }` — instant, no Allocine fetch.
+
+This is a redesign of the original n8n shape (which merged by movie title across theaters) — approved by the user.

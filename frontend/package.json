@@ -1,0 +1,15 @@
+{
+  "name": "minuit-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astryxdesign/cli": "^0.1.8",
+    "@astryxdesign/core": "^0.1.8",
+    "@astryxdesign/theme-neutral": "^0.1.8"
+  },
+  "allowScripts": {
+    "@astryxdesign/cli@0.1.8": true,
+    "@astryxdesign/core@0.1.8": true
+  }
+}
