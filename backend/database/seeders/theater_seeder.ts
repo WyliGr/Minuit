@@ -7,6 +7,7 @@ const THEATERS = [
   { allocineId: 'P0600', name: 'Vox', slug: 'vox' },
   { allocineId: 'P0027', name: 'Star', slug: 'star' },
   { allocineId: 'P0025', name: 'Star St-Exupéry', slug: 'star-st-exupery' },
+  { allocineId: 'P0751', name: 'Pathé Brumath', slug: 'pathe-brumath' },
 ]
 
 export default class extends BaseSeeder {

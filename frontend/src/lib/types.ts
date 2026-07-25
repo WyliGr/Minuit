@@ -21,6 +21,8 @@ export interface Showtime {
   startsAt: string;
   isVost: boolean;
   isPreview: boolean;
+  /** Premium format (IMAX, 4DX, Dolby Atmos, PLF) or null. */
+  format: string | null;
 }
 
 export interface Film {

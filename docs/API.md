@@ -80,7 +80,8 @@ Returns the theater list instantly (reads DB, does NOT call Allocine). Use for f
               "time": "14:30",
               "startsAt": "2026-07-24T14:30:00",
               "isVost": false,
-              "isPreview": false
+              "isPreview": false,
+              "format": null
             }
           ]
         }
@@ -139,7 +140,8 @@ SchedulesResponse (single day — flat)
             ├── time      string   "HH:MM" (fr-FR, 24h)
             ├── startsAt  string   ISO 8601 timestamp
             ├── isVost    boolean  true if original version
-            └── isPreview boolean  true if avant-première
+            ├── isPreview boolean  true if avant-première
+            └── format    string|null  premium format (IMAX, 4DX, Dolby Atmos, PLF) or null
 
 SchedulesRangeResponse (multi-day — wrapped)
 └── days[]    SchedulesResponse (same shape as single-day, one per offset)
@@ -163,6 +165,7 @@ SchedulesRangeResponse (multi-day — wrapped)
 | `vox` | Vox | P0600 |
 | `star` | Star | P0027 |
 | `star-st-exupery` | Star St-Exupéry | P0025 |
+| `pathe-brumath` | Pathé Brumath | P0751 |
 
 ## Error scenarios
 

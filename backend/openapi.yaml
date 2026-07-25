@@ -119,6 +119,7 @@ paths:
                             startsAt: '2026-07-24T14:30:00'
                             isVost: false
                             isPreview: false
+                            format: null
                   - slug: star-st-exupery
                     name: Star St-Exupéry
                     lastFetchedAt: '2026-07-24T14:03:11.000Z'
@@ -329,7 +330,7 @@ components:
 
     Showtime:
       type: object
-      required: [time, startsAt, isVost, isPreview]
+      required: [time, startsAt, isVost, isPreview, format]
       properties:
         time:
           type: string
@@ -347,6 +348,13 @@ components:
           type: boolean
           description: True if this is a preview screening (avant-première).
           example: false
+        format:
+          type: string
+          nullable: true
+          description: |
+            Premium screening format, or null for standard digital.
+            Detected from Allocine tags/experience: IMAX, 4DX, Dolby Atmos, PLF.
+          example: IMAX
 
     ValidationError:
       type: object

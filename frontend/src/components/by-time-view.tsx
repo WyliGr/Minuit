@@ -45,6 +45,14 @@ export function ByTimeView({ theaters, now }: ByTimeViewProps) {
                 <span className="mn-time-row-title">{r.title}</span>
                 <span className="mn-time-row-theater">{r.theaterName}</span>
                 <span className="mn-time-row-flags">
+                  {r.format && (
+                    <span
+                      className="mn-showtime-flag mn-showtime-flag--format"
+                      title={r.format}
+                    >
+                      {r.format}
+                    </span>
+                  )}
                   {r.isVost && <span className="mn-showtime-flag">VOST</span>}
                   {r.isPreview && (
                     <span className="mn-showtime-flag">

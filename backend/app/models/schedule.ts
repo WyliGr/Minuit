@@ -8,6 +8,7 @@ export type ShowtimeEntry = {
   startsAt: string
   isVost: boolean
   isPreview: boolean
+  format: string | null
 }
 
 export type FilmEntry = {

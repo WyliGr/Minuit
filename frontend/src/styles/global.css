@@ -1032,6 +1032,20 @@ button.mn-poster {
   background: color-mix(in srgb, var(--color-bg) 20%, transparent);
 }
 
+/* Format flag — premium format (IMAX, 4DX, Dolby Atmos, PLF).
+   Tinted with the accent at low opacity so it reads as a different
+   kind of flag from VOST/AVANT (which are neutral) without
+   competing with the showtime chip's accent hover state. */
+.mn-showtime-flag--format {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.mn-showtime:hover .mn-showtime-flag--format {
+  color: var(--color-bg);
+  background: color-mix(in srgb, var(--color-bg) 25%, transparent);
+}
+
 /* By-time view — hour buckets as section breaks */
 
 .mn-time-bucket {

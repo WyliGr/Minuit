@@ -4,6 +4,8 @@ const showtimeSchema = vine.object({
   startsAt: vine.string(),
   diffusionVersion: vine.string().optional(),
   isPreview: vine.boolean().optional(),
+  experience: vine.array(vine.string()).optional(),
+  tags: vine.array(vine.string()).optional(),
 })
 
 const showtimesMapSchema = vine.record(vine.array(showtimeSchema).optional())

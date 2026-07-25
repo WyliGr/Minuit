@@ -95,6 +95,7 @@ export interface TimeRow {
   theaterSlug: string;
   isVost: boolean;
   isPreview: boolean;
+  format: string | null;
 }
 
 /** Flatten all showtimes across theaters into time-sorted rows. */
@@ -112,6 +113,7 @@ export function groupByTime(theaters: TheaterSlice[]): TimeRow[] {
           theaterSlug: t.slug,
           isVost: s.isVost,
           isPreview: s.isPreview,
+          format: s.format ?? null,
         });
       }
     }

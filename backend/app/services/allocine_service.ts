@@ -13,6 +13,21 @@ function parseRuntime(raw: string | undefined): number {
   return h * 60 + m
 }
 
+const FORMAT_PATTERNS: { tags: string[]; experience: string[]; label: string }[] = [
+  { tags: ['Format.Projection.Imax'], experience: [], label: 'IMAX' },
+  { tags: ['Auditorium.Experience.4dx'], experience: ['E_4DX'], label: '4DX' },
+  { tags: ['Auditorium.Experience.DolbyAtmos'], experience: ['DOLBY_ATMOS'], label: 'Dolby Atmos' },
+  { tags: ['Auditorium.Experience.PLF'], experience: ['PLF'], label: 'PLF' },
+]
+
+function detectFormat(tags: string[] | undefined, experience: string[] | undefined): string | null {
+  for (const pattern of FORMAT_PATTERNS) {
+    if (tags?.some((t) => pattern.tags.includes(t))) return pattern.label
+    if (experience?.some((e) => pattern.experience.includes(e))) return pattern.label
+  }
+  return null
+}
+
 export default class AllocineService {
   private async fetchRaw(theater: Theater, formattedDate: string): Promise<unknown> {
     const url = `${ALLOCINE_BASE}${theater.allocineId}/d-${formattedDate}`
@@ -67,6 +82,7 @@ export default class AllocineService {
             startsAt: s.startsAt,
             isVost: s.diffusionVersion === 'ORIGINAL',
             isPreview: !!s.isPreview,
+            format: detectFormat(s.tags, s.experience),
           })
         }
       }

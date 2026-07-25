@@ -78,9 +78,19 @@ export function ByMovieView({ theaters, now, onOpenPoster }: ByMovieViewProps) {
                           disabled={past}
                           aria-label={`${s.time} — ${g.title} — ${v.name}${
                             s.isVost ? ' — VOST' : ''
-                          }${s.isPreview ? ' — avant-première' : ''}`}
+                          }${s.isPreview ? ' — avant-première' : ''}${
+                            s.format ? ` — ${s.format}` : ''
+                          }`}
                         >
                           <span>{s.time}</span>
+                          {s.format && (
+                            <span
+                              className="mn-showtime-flag mn-showtime-flag--format"
+                              title={s.format}
+                            >
+                              {s.format}
+                            </span>
+                          )}
                           {s.isVost && (
                             <span className="mn-showtime-flag">VOST</span>
                           )}
