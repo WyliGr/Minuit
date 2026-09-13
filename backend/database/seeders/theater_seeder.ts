@@ -11,7 +11,7 @@ const THEATERS = [
 ]
 
 export default class extends BaseSeeder {
-  static environment = ['development', 'production']
+  static environment = ['development', 'production', 'test']
 
   async run() {
     for (const t of THEATERS) {

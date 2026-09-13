@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { Readable } from 'node:stream'
 import { posterUrlValidator } from '#validators/poster_url'
 
 const POSTER_CACHE = 'public, max-age=2592000, immutable'
@@ -21,10 +22,13 @@ export default class PostersController {
     }
 
     const contentType = upstream.headers.get('content-type') ?? 'image/jpeg'
-    const body = Buffer.from(await upstream.arrayBuffer())
 
     response.header('Content-Type', contentType)
     response.header('Cache-Control', POSTER_CACHE)
-    return response.send(body)
+    // Stream instead of buffering — posters are small but this keeps memory flat.
+    response.stream(upstream.body ?? Readable.from([]), () => [
+      'Upstream stream error',
+      upstream.status ?? 502,
+    ])
   }
 }

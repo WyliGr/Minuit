@@ -31,8 +31,22 @@ function ttlMinutes(): number {
   return env.get('CACHE_TTL_MINUTES')
 }
 
-function isStale(lastFetchedAt: DateTime, now: DateTime): boolean {
+/**
+ * When true, showtimes that already started are filtered out of the response.
+ * Driven by the target day's local date in SCHEDULES_TZ (Europe/Paris), not
+ * the server clock — otherwise UTC containers filter the wrong day around
+ * midnight.
+ */
+function schedulesTz(): string {
+  return env.get('SCHEDULES_TZ', 'Europe/Paris')
+}
+
+export function isStale(lastFetchedAt: DateTime, now: DateTime): boolean {
   return now.diff(lastFetchedAt, 'minutes').minutes > ttlMinutes()
+}
+
+export function resolveTargetDate(targetIso: string): DateTime {
+  return DateTime.fromISO(targetIso).setZone(schedulesTz())
 }
 
 function rewritePosterUrls(films: FilmEntry[]): FilmEntry[] {
@@ -62,13 +76,25 @@ function normalizeFilms(films: unknown): FilmEntry[] {
 
 export function parseDaysParam(days: string | number | undefined): number[] {
   if (days === undefined) return [0]
-  if (typeof days === 'number') return [days]
+  if (typeof days === 'number') {
+    if (!Number.isInteger(days) || days < 0 || days > 30) {
+      throw new Error(`days must be an integer between 0 and 30, got ${days}`)
+    }
+    return [days]
+  }
 
   const [from, to] = days.split('-').map((n) => Number.parseInt(n, 10))
+  if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to > 30 || from > to) {
+    throw new Error(`days must be a number (0-30) or a range like "0-6", got "${days}"`)
+  }
   const offsets: number[] = []
   for (let i = from; i <= to; i++) offsets.push(i)
   return offsets
 }
+
+// ponytail: module-level map, dedups concurrent fetches per theater+date.
+// Single-process only — add Redis locks if this ever runs multi-instance.
+const inFlight = new Map<string, Promise<SchedulePayload>>()
 
 export default class ScheduleService {
   async getSchedules(
@@ -152,10 +178,22 @@ export default class ScheduleService {
       }
     }
 
-    const allocine = new AllocineService()
-    const payload = await allocine.fetchSchedule(theater, formattedDate, targetIso)
+    const cacheKey = `${theater.id}:${formattedDate}`
+    let fetchPromise = options.fresh ? undefined : inFlight.get(cacheKey)
 
-    await this.upsertCache(theater.id, formattedDate, payload, now)
+    if (!fetchPromise) {
+      const allocine = new AllocineService()
+      fetchPromise = allocine
+        .fetchSchedule(theater, formattedDate, targetIso)
+        .then(async (payload) => {
+          await this.upsertCache(theater.id, formattedDate, payload, now)
+          return payload
+        })
+        .finally(() => inFlight.delete(cacheKey))
+      inFlight.set(cacheKey, fetchPromise)
+    }
+
+    const payload = await fetchPromise
 
     return {
       slug: theater.slug,

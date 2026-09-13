@@ -11,25 +11,17 @@ services:
       PORT: "3333"
       HOST: "0.0.0.0"
       TZ: UTC
-      APP_KEY: "UkkntcL0pERhBqGrRZx3yCwqD0bbo2T3"
       APP_URL: "http://localhost:3333"
       LOG_LEVEL: info
       DB_PATH: "/app/database/minuit.sqlite"
       CACHE_TTL_MINUTES: "360"
+      SCHEDULES_TZ: "Europe/Paris"
       CORS_ORIGIN: "*"
+      # APP_KEY comes from backend/.env (env_file) — keep secrets out of VCS.
+    env_file:
+      - ./backend/.env
     volumes:
       - minuit-db:/app/database
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: minuit-frontend
-    ports:
-      - "4321:4321"
-    depends_on:
-      - backend
     restart: unless-stopped
 
   swagger:

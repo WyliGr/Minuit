@@ -8,7 +8,15 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class ScheduleSchema extends BaseModel {
-  static $columns = ['createdAt', 'date', 'id', 'lastFetchedAt', 'payload', 'theaterId', 'updatedAt'] as const
+  static $columns = [
+    'createdAt',
+    'date',
+    'id',
+    'lastFetchedAt',
+    'payload',
+    'theaterId',
+    'updatedAt',
+  ] as const
   $columns = ScheduleSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -27,7 +35,15 @@ export class ScheduleSchema extends BaseModel {
 }
 
 export class TheaterSchema extends BaseModel {
-  static $columns = ['allocineId', 'createdAt', 'id', 'isActive', 'name', 'slug', 'updatedAt'] as const
+  static $columns = [
+    'allocineId',
+    'createdAt',
+    'id',
+    'isActive',
+    'name',
+    'slug',
+    'updatedAt',
+  ] as const
   $columns = TheaterSchema.$columns
   @column()
   declare allocineId: string

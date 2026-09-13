@@ -1,6 +1,8 @@
 import type Theater from '#models/theater'
+import { DateTime } from 'luxon'
 import { allocinePayloadValidator } from '#validators/allocine_payload'
 import type { FilmEntry, SchedulePayload, ShowtimeEntry } from '#models/schedule'
+import { resolveTargetDate } from '#services/schedule_service'
 
 const ALLOCINE_BASE = 'https://www.allocine.fr/_/showtimes/theater-'
 
@@ -55,9 +57,9 @@ export default class AllocineService {
     const raw = await this.fetchRaw(theater, formattedDate)
     const cleaned = await allocinePayloadValidator.validate(raw)
 
-    const targetDate = new Date(targetIso)
-    const now = new Date()
-    const isToday = targetDate.toDateString() === now.toDateString()
+    const targetDate = resolveTargetDate(targetIso)
+    const now = DateTime.now().setZone(targetDate.zone)
+    const isToday = targetDate.hasSame(now, 'day')
 
     const films: FilmEntry[] = []
 
@@ -72,10 +74,12 @@ export default class AllocineService {
         if (!Array.isArray(list)) continue
 
         for (const s of list) {
-          const date = new Date(s.startsAt)
+          // startsAt is a local ISO string without a timezone — parse it in the
+          // schedules timezone so the past-showtime filter compares real instants.
+          const date = DateTime.fromISO(s.startsAt, { zone: targetDate.zone })
           if (isToday && date < now) continue
 
-          const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+          const time = date.toFormat('HH:mm')
 
           showtimes.push({
             time,
