@@ -1,32 +1,45 @@
-# React + TypeScript + Vite
+# Minuit — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interface web de [Minuit](../README.md) : landing de présentation + tableau des séances de cinéma à Strasbourg.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Vite + React 19 + TypeScript
+- Tailwind CSS v4 (thème `ink` / `amber` dans `src/index.css`)
+- Motion (animations, respecte `prefers-reduced-motion`)
+- React Router (lazy loading par page)
+- Polices auto-hébergées via `@fontsource-variable/*`
 
-## React Compiler
+## Développement
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm install
+npm run dev        # http://localhost:5173 — /api proxyé vers localhost:3333
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Le backend doit tourner (voir `../backend`). Aucune variable d'environnement nécessaire en dev.
+
+## Build
+
+```sh
+npm run build      # sortie dans dist/
+npm run preview
+```
+
+## Docker
+
+`docker compose up` depuis la racine construit et sert le frontend via nginx sur le port 8080. Les requêtes `/api/*` sont proxyées vers le conteneur `backend`.
+
+## Structure
+
+```
+src/
+├── main.tsx              # routeur + polices
+├── index.css             # tokens de design, grain, marquee, skeletons
+├── lib/api.ts            # client API typé (docs/API.md)
+├── lib/utils.ts          # cn()
+├── components/Layout.tsx # header sticky, footer
+└── pages/
+    ├── LandingPage.tsx   # hero, marquee salles, features, section API, CTA
+    └── DashboardPage.tsx # sélecteur 7 jours, filtres salles, films, séances
+```
