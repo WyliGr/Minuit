@@ -5,7 +5,7 @@ Cinema schedule aggregator. Two independent packages (not a workspace monorepo):
 - `backend/` — AdonisJS 7 API (TypeScript, SQLite via Lucid, **npm**)
 - `frontend/` — Next.js 16 app (**pnpm** — using npm here will break the lockfile)
 - `docs/API.md` — API reference; trust it over assumptions about endpoint shapes
-- `docker-compose.yml` — production-style deploy (backend on :3333, Swagger UI on :8088 reading `backend/openapi.yaml`)
+- `docker-compose.yml` — production-style deploy (backend on :3333, frontend on :8080 with `/api` rewritten to the backend at build time, Swagger UI on :8088 reading `backend/openapi.yaml`)
 
 ## Backend (run inside `backend/`)
 

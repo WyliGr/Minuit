@@ -1,4 +1,18 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Rewrite destination is baked in at build time — rewrites() is evaluated during `next build`
+        BACKEND_ORIGIN: http://backend:3333
+    container_name: minuit-frontend
+    ports:
+      - "8080:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
