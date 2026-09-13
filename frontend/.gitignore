@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+
+# Build
+dist
+*.local
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# Editors
+.idea
+.vscode
+
+# OS
+.DS_Store
