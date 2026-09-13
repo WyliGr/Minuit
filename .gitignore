@@ -1,2 +1,23 @@
-n8n-workflow.json
-bruno/*
+# Env files
+.env
+.env.local
+
+# Node
+node_modules
+
+# SQLite databases
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# Editors
+.idea
+.vscode
+.fleet
+
+# OS
+.DS_Store
