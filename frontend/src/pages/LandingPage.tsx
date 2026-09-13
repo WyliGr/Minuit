@@ -44,13 +44,13 @@ const features = [
   },
   {
     icon: CalendarBlank,
-    title: 'Sept jours, un coup d\u2019œil',
-    body: 'Aujourd\u2019hui, demain, ou la semaine entière. Les séances déjà commencées disparaissent, il ne reste que l\u2019utile.',
+    title: 'Sept jours, un coup d’œil',
+    body: 'Aujourd’hui, demain, ou la semaine entière. Les séances déjà commencées disparaissent, il ne reste que l’utile.',
   },
   {
     icon: Television,
     title: 'Formats premium détectés',
-    body: 'IMAX, 4DX, Dolby Atmos — chaque séance est étiquetée avec son format pour choisir l\u2019expérience, pas juste l\u2019horaire.',
+    body: 'IMAX, 4DX, Dolby Atmos — chaque séance est étiquetée avec son format pour choisir l’expérience, pas juste l’horaire.',
   },
 ]
 
@@ -73,14 +73,14 @@ export function LandingPage() {
         {/* projector beam */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-40 left-1/2 h-[140%] w-[min(900px,90vw)] -translate-x-1/2 rotate-12 bg-[radial-gradient(ellipse_at_top,rgba(245,185,66,0.09),transparent_60%)]"
+          className="pointer-events-none absolute -top-40 left-1/2 h-[140%] w-[min(900px,90vw)] -translate-x-1/2 rotate-12 bg-[radial-gradient(ellipse_at_top,rgba(101,98,219,0.09),transparent_60%)]"
         />
         <div className="relative mx-auto flex min-h-[92dvh] max-w-6xl flex-col justify-center px-4 pb-20 pt-24 sm:px-6">
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: easeOutExpo }}
-            className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-amber-glow"
+            className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-glow-500"
           >
             Strasbourg · 6 salles · 7 jours
           </motion.p>
@@ -92,7 +92,7 @@ export function LandingPage() {
             className="max-w-4xl text-5xl font-bold leading-[1.05] tracking-tighter sm:text-6xl lg:text-7xl"
           >
             Toutes les séances de cinéma de Strasbourg,{' '}
-            <span className="text-amber-glow">en un coup d\u2019œil.</span>
+            <span className="text-glow-500">en un coup d’œil.</span>
           </motion.h1>
 
           <motion.p
@@ -113,7 +113,7 @@ export function LandingPage() {
           >
             <Link
               to="/dashboard"
-              className="group flex items-center gap-2.5 rounded-full bg-amber-glow px-7 py-3.5 text-base font-semibold text-ink-950 transition-all duration-200 hover:bg-amber-deep active:scale-[0.98]"
+              className="group flex items-center gap-2.5 rounded-full bg-glow-500 px-7 py-3.5 text-base font-semibold text-ink-950 transition-all duration-200 hover:bg-glow-600 active:scale-[0.98]"
             >
               Voir les séances
               <ArrowRight
@@ -168,7 +168,7 @@ export function LandingPage() {
           {features.map((feature, i) => (
             <Reveal key={feature.title} delay={i * 0.08} className="h-full">
               <article className="flex h-full flex-col gap-4 bg-ink-900 p-8 transition-colors duration-300 hover:bg-ink-850">
-                <feature.icon weight="duotone" className="size-8 text-amber-glow" />
+                <feature.icon weight="duotone" className="size-8 text-glow-500" />
                 <h3 className="text-xl font-semibold tracking-tight">{feature.title}</h3>
                 <p className="text-sm leading-relaxed text-ink-300">{feature.body}</p>
               </article>
@@ -182,12 +182,12 @@ export function LandingPage() {
         <div className="mx-auto grid max-w-6xl grid-cols-1 divide-y divide-ink-800 px-4 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6">
           {[
             { value: '6', label: 'salles couvertes, de la Neudorf à Brumath' },
-            { value: '7', label: 'jours de séances disponibles d\u2019avance' },
+            { value: '7', label: 'jours de séances disponibles d’avance' },
             { value: '6 h', label: 'de cache — frais sans être lent' },
           ].map((stat, i) => (
             <Reveal key={stat.label} delay={i * 0.08}>
               <div className="flex flex-col gap-2 px-2 py-10 text-center sm:py-12">
-                <span className="font-mono text-4xl font-bold text-amber-glow">{stat.value}</span>
+                <span className="font-mono text-4xl font-bold text-glow-500">{stat.value}</span>
                 <span className="text-sm text-ink-300">{stat.label}</span>
               </div>
             </Reveal>
@@ -205,7 +205,7 @@ export function LandingPage() {
             <p className="mt-5 max-w-[65ch] leading-relaxed text-ink-300">
               Derrière cette interface, Minuit est une API publique : trois endpoints,
               du JSON propre, une spec OpenAPI. Branchez un agent, un widget, une app —
-              pas de clé, pas d\u2019inscription.
+              pas de clé, pas d’inscription.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               {['GET /theaters', 'GET /theater?days=0-6', 'GET /poster'].map((endpoint) => (
@@ -224,7 +224,7 @@ export function LandingPage() {
               <div className="flex items-center gap-2 border-b border-ink-700 px-5 py-3.5">
                 <span className="size-2.5 rounded-full bg-ink-700" />
                 <span className="size-2.5 rounded-full bg-ink-700" />
-                <span className="size-2.5 rounded-full bg-amber-glow/60" />
+                <span className="size-2.5 rounded-full bg-glow-500/60" />
                 <span className="ml-3 font-mono text-xs text-ink-400">minuit — api</span>
               </div>
               <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed text-ink-200">
@@ -256,11 +256,11 @@ export function LandingPage() {
       <section className="relative overflow-hidden border-t border-ink-800">
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-32 left-1/2 h-64 w-[min(700px,90vw)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_bottom,rgba(245,185,66,0.1),transparent_65%)]"
+          className="pointer-events-none absolute -bottom-32 left-1/2 h-64 w-[min(700px,90vw)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_bottom,rgba(101,98,219,0.1),transparent_65%)]"
         />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-28 text-center sm:px-6 lg:py-36">
           <Reveal>
-            <MoonStars weight="duotone" className="size-12 text-amber-glow" />
+            <MoonStars weight="duotone" className="size-12 text-glow-500" />
           </Reveal>
           <Reveal delay={0.08}>
             <h2 className="max-w-2xl text-4xl font-bold tracking-tighter text-balance sm:text-5xl">
@@ -270,7 +270,7 @@ export function LandingPage() {
           <Reveal delay={0.16}>
             <Link
               to="/dashboard"
-              className="group flex items-center gap-2.5 rounded-full bg-amber-glow px-8 py-4 text-base font-semibold text-ink-950 transition-all duration-200 hover:bg-amber-deep active:scale-[0.98]"
+              className="group flex items-center gap-2.5 rounded-full bg-glow-500 px-8 py-4 text-base font-semibold text-ink-950 transition-all duration-200 hover:bg-glow-600 active:scale-[0.98]"
             >
               Ouvrir le tableau des séances
               <Sparkle weight="fill" className="size-4" />
@@ -279,7 +279,7 @@ export function LandingPage() {
           <Reveal delay={0.24}>
             <p className="flex items-center gap-2 font-mono text-xs text-ink-400">
               <Clock weight="bold" className="size-3.5" />
-              les séances passées d\u2019aujourd\u2019hui sont masquées automatiquement
+              les séances passées d’aujourd’hui sont masquées automatiquement
             </p>
           </Reveal>
         </div>

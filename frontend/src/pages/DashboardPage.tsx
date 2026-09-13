@@ -14,6 +14,7 @@ import {
   fetchDaySchedules,
   fetchTheaters,
   type DaySchedules,
+  type Showtime,
   type TheaterListItem,
 } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -48,7 +49,7 @@ function freshnessLabel(lastFetchedAt: string): string {
     0,
     Math.round((Date.now() - new Date(lastFetchedAt).getTime()) / 60000)
   )
-  if (diffMin < 1) return 'à l\u2019instant'
+  if (diffMin < 1) return 'à l’instant'
   if (diffMin < 60) return `il y a ${diffMin} min`
   const hours = Math.floor(diffMin / 60)
   return hours === 1 ? 'il y a 1 h' : `il y a ${hours} h`
@@ -56,29 +57,38 @@ function freshnessLabel(lastFetchedAt: string): string {
 
 function FilmSkeleton() {
   return (
-    <div className="flex gap-4 rounded-2xl border border-ink-800 p-4 sm:gap-5 sm:p-5">
-      <div className="skeleton aspect-[2/3] w-20 shrink-0 rounded-lg sm:w-24" />
-      <div className="flex grow flex-col gap-3 py-1">
-        <div className="skeleton h-5 w-3/4 rounded" />
-        <div className="skeleton h-3.5 w-24 rounded" />
-        <div className="mt-2 flex flex-wrap gap-2">
+    <div className="flex flex-col gap-4 rounded-2xl border border-ink-800 p-4 sm:p-5">
+      <div className="flex gap-4 sm:gap-5">
+        <div className="skeleton aspect-[2/3] w-20 shrink-0 rounded-lg sm:w-24" />
+        <div className="flex grow flex-col gap-3 py-1">
+          <div className="skeleton h-5 w-3/4 rounded" />
+          <div className="skeleton h-3.5 w-24 rounded" />
+        </div>
+      </div>
+      <div className="ml-[5.5rem] hidden flex-col gap-2.5 sm:ml-[6.5rem] sm:flex">
+        <div className="skeleton h-3.5 w-32 rounded" />
+        <div className="flex flex-wrap gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="skeleton h-7 w-14 rounded-full" />
           ))}
         </div>
       </div>
+      <div className="flex flex-wrap gap-2 pl-[5.5rem] sm:hidden">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="skeleton h-7 w-14 rounded-full" />
+        ))}
+      </div>
     </div>
   )
 }
 
-function TheaterSkeleton() {
+function FilmGridSkeleton() {
   return (
-    <section className="space-y-4">
-      <div className="skeleton h-7 w-48 rounded" />
-      <FilmSkeleton />
-      <FilmSkeleton />
-      <FilmSkeleton />
-    </section>
+    <div className="grid gap-4 lg:grid-cols-2">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <FilmSkeleton key={i} />
+      ))}
+    </div>
   )
 }
 
@@ -118,8 +128,8 @@ export function DashboardPage() {
         if (cancelled) return
         setError(
           err instanceof ApiError
-            ? `L\u2019API a répondu avec une erreur (${err.status}).`
-            : 'Impossible de joindre l\u2019API. Vérifiez que le backend est lancé.'
+            ? `L’API a répondu avec une erreur (${err.status}).`
+            : 'Impossible de joindre l’API. Vérifiez que le backend est lancé.'
         )
       })
       .finally(() => {
@@ -136,7 +146,41 @@ export function DashboardPage() {
     return data.theaters.filter((t) => activeTheaters.has(t.slug))
   }, [data, activeTheaters])
 
-  const totalFilms = theaters.reduce((acc, t) => acc + t.films.length, 0)
+  const films = useMemo(() => {
+    type FilmEntry = {
+      title: string
+      runtime: number
+      posterUrl: string | null
+      venues: { theaterName: string; showtimes: Showtime[] }[]
+    }
+    const byTitle = new Map<string, FilmEntry>()
+    for (const theater of theaters) {
+      for (const film of theater.films) {
+        const existing = byTitle.get(film.title)
+        if (existing) {
+          existing.venues.push({ theaterName: theater.name, showtimes: film.showtimes })
+          existing.runtime = Math.max(existing.runtime, film.runtime)
+        } else {
+          byTitle.set(film.title, {
+            title: film.title,
+            runtime: film.runtime,
+            posterUrl: film.posterUrl,
+            venues: [{ theaterName: theater.name, showtimes: film.showtimes }],
+          })
+        }
+      }
+    }
+    return [...byTitle.values()].sort(
+      (a, b) =>
+        b.venues.reduce((acc, v) => acc + v.showtimes.length, 0) -
+        a.venues.reduce((acc, v) => acc + v.showtimes.length, 0)
+    )
+  }, [theaters])
+
+  const totalShowtimes = films.reduce(
+    (acc, f) => acc + f.venues.reduce((a, v) => a + v.showtimes.length, 0),
+    0
+  )
 
   const toggleTheater = (slug: string) => {
     setActiveTheaters((prev) => {
@@ -156,15 +200,15 @@ export function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tighter sm:text-4xl">
-            <FilmSlate weight="duotone" className="size-8 text-amber-glow" />
+            <FilmSlate weight="duotone" className="size-8 text-glow-500" />
             Séances
           </h1>
           {!loading && data && (
             <p className="mt-2 text-sm text-ink-300">
               {data.displayDate} ·{' '}
               <span className="font-mono text-ink-400">
-                {theaters.length} salle{theaters.length > 1 ? 's' : ''} · {totalFilms} film
-                {totalFilms > 1 ? 's' : ''}
+                {films.length} film{films.length > 1 ? 's' : ''} · {totalShowtimes} séance
+                {totalShowtimes > 1 ? 's' : ''}
               </span>
             </p>
           )}
@@ -186,7 +230,7 @@ export function DashboardPage() {
             className={cn(
               'flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-4 py-2.5 transition-all duration-200 active:scale-[0.97]',
               offset === dayOffset
-                ? 'border-amber-glow bg-amber-glow/10 text-amber-glow'
+                ? 'border-glow-500 bg-glow-500/10 text-glow-500'
                 : 'border-ink-700 bg-ink-900 text-ink-300 hover:border-ink-600 hover:text-ink-100'
             )}
           >
@@ -224,10 +268,10 @@ export function DashboardPage() {
       )}
 
       {/* ── Content ────────────────────────────────────── */}
-      <div className="mt-12 space-y-16">
+      <div className="mt-12">
         {error && (
           <div className="flex flex-col items-center gap-4 rounded-2xl border border-ink-700 bg-ink-900 px-6 py-16 text-center">
-            <WarningCircle weight="duotone" className="size-10 text-amber-glow" />
+            <WarningCircle weight="duotone" className="size-10 text-glow-500" />
             <p className="max-w-md text-ink-200">{error}</p>
             <button
               onClick={() => setDayOffset((d) => d)}
@@ -238,12 +282,7 @@ export function DashboardPage() {
           </div>
         )}
 
-        {loading && (
-          <>
-            <TheaterSkeleton />
-            <TheaterSkeleton />
-          </>
-        )}
+        {loading && <FilmGridSkeleton />}
 
         {!loading && !error && theaters.length === 0 && (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-ink-800 px-6 py-16 text-center">
@@ -253,127 +292,123 @@ export function DashboardPage() {
               onClick={() =>
                 setActiveTheaters(new Set((data?.theaters ?? []).map((t) => t.slug)))
               }
-              className="text-sm font-medium text-amber-glow underline-offset-4 hover:underline"
+              className="text-sm font-medium text-glow-500 underline-offset-4 hover:underline"
             >
               Tout réactiver
             </button>
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          theaters.map((theater, theaterIdx) => (
-            <motion.section
-              key={theater.slug}
-              initial={reduce ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.5,
-                delay: Math.min(theaterIdx * 0.05, 0.25),
-                ease: easeOutExpo,
-              }}
-              className="space-y-5"
-            >
-              <header className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                  {theater.name}
-                </h2>
-                <span className="font-mono text-xs text-ink-400">
-                  {theater.films.length === 0
-                    ? 'aucune séance'
-                    : `${theater.films.length} film${theater.films.length > 1 ? 's' : ''}`}
-                </span>
-              </header>
+        {!loading && !error && theaters.length > 0 && films.length === 0 && (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-ink-800 px-6 py-16 text-center">
+            <FilmSlate weight="duotone" className="size-10 text-ink-400" />
+            <p className="text-ink-300">
+              Aucune séance ce jour dans les salles sélectionnées.
+            </p>
+            <Link to="/" className="text-sm text-glow-500 underline-offset-4 hover:underline">
+              Retour à l’accueil
+            </Link>
+          </div>
+        )}
 
-              {theater.films.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-ink-700 px-5 py-8 text-center text-sm text-ink-400">
-                  Pas de séance ce jour dans cette salle.
-                </p>
-              ) : (
-                <div className="grid gap-4 lg:grid-cols-2">
-                  {theater.films.map((film) => (
-                    <article
-                      key={`${theater.slug}-${film.title}`}
-                      className="group flex gap-4 rounded-2xl border border-ink-800 bg-ink-900/60 p-4 transition-colors duration-300 hover:border-ink-600 sm:gap-5 sm:p-5"
+        {!loading && !error && films.length > 0 && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {films.map((film, filmIdx) => (
+              <motion.article
+                key={film.title}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: Math.min(filmIdx * 0.04, 0.3),
+                  ease: easeOutExpo,
+                }}
+                className="flex flex-col gap-4 rounded-2xl border border-ink-800 bg-ink-900/60 p-4 transition-colors duration-300 hover:border-ink-600 sm:p-5"
+              >
+                <div className="flex gap-4 sm:gap-5">
+                  {film.posterUrl ? (
+                    <img
+                      src={film.posterUrl}
+                      alt=""
+                      loading="lazy"
+                      className="aspect-[2/3] w-20 shrink-0 rounded-lg object-cover sm:w-24"
+                    />
+                  ) : (
+                    <div className="flex aspect-[2/3] w-20 shrink-0 items-center justify-center rounded-lg border border-ink-700 bg-ink-850 sm:w-24">
+                      <FilmSlate weight="duotone" className="size-7 text-ink-600" />
+                    </div>
+                  )}
+
+                  <div className="flex min-w-0 grow flex-col gap-2 py-0.5">
+                    <h2 className="text-lg font-semibold leading-snug tracking-tight text-balance">
+                      {film.title}
+                    </h2>
+                    <p className="flex items-center gap-1.5 font-mono text-xs text-ink-400">
+                      <Clock weight="bold" className="size-3" />
+                      {formatRuntime(film.runtime)}
+                    </p>
+                    <p className="mt-auto font-mono text-[11px] text-ink-400">
+                      {film.venues.length} salle{film.venues.length > 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2.5 sm:pl-[6.25rem]">
+                  {film.venues.map((venue) => (
+                    <div
+                      key={`${film.title}-${venue.theaterName}`}
+                      className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4"
                     >
-                      {film.posterUrl ? (
-                        <img
-                          src={film.posterUrl}
-                          alt=""
-                          loading="lazy"
-                          className="aspect-[2/3] w-20 shrink-0 rounded-lg object-cover sm:w-24"
-                        />
-                      ) : (
-                        <div className="flex aspect-[2/3] w-20 shrink-0 items-center justify-center rounded-lg border border-ink-700 bg-ink-850 sm:w-24">
-                          <FilmSlate weight="duotone" className="size-7 text-ink-600" />
-                        </div>
-                      )}
-
-                      <div className="flex min-w-0 grow flex-col gap-2">
-                        <h3 className="text-lg font-semibold leading-snug tracking-tight text-balance">
-                          {film.title}
-                        </h3>
-                        <p className="flex items-center gap-1.5 font-mono text-xs text-ink-400">
-                          <Clock weight="bold" className="size-3" />
-                          {formatRuntime(film.runtime)}
-                        </p>
-
-                        <div className="mt-auto flex flex-wrap gap-2 pt-2">
-                          {film.showtimes.map((showtime) => (
-                            <span
-                              key={`${theater.slug}-${film.title}-${showtime.startsAt}`}
-                              title={[
-                                showtime.format,
-                                showtime.isVost ? 'VO' : undefined,
-                                showtime.isPreview ? 'avant-première' : undefined,
-                              ]
-                                .filter(Boolean)
-                                .join(' · ')}
-                              className={cn(
-                                'rounded-full px-3 py-1.5 font-mono text-xs font-medium transition-colors',
-                                showtime.format
-                                  ? 'bg-amber-glow/15 text-amber-glow'
-                                  : 'bg-ink-800 text-ink-200'
-                              )}
-                            >
-                              {showtime.time}
-                              {showtime.isVost && (
-                                <span className="ml-1.5 opacity-70">VO</span>
-                              )}
-                              {showtime.isPreview && (
-                                <span className="ml-1.5 opacity-70">AV.P</span>
-                              )}
-                              {showtime.format && (
-                                <span className="ml-1.5 font-semibold">
-                                  {showtime.format}
-                                </span>
-                              )}
-                            </span>
-                          ))}
-                        </div>
+                      <span className="shrink-0 pt-1 text-xs font-medium text-ink-300 sm:w-28">
+                        {venue.theaterName}
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {venue.showtimes.map((showtime) => (
+                          <span
+                            key={`${film.title}-${venue.theaterName}-${showtime.startsAt}`}
+                            title={[
+                              showtime.format,
+                              showtime.isVost ? 'VO' : undefined,
+                              showtime.isPreview ? 'avant-première' : undefined,
+                            ]
+                              .filter(Boolean)
+                              .join(' · ')}
+                            className={cn(
+                              'rounded-full px-3 py-1.5 font-mono text-xs font-medium transition-colors',
+                              showtime.format
+                                ? 'bg-glow-500/15 text-glow-400'
+                                : 'bg-ink-800 text-ink-200'
+                            )}
+                          >
+                            {showtime.time}
+                            {showtime.isVost && (
+                              <span className="ml-1.5 opacity-70">VO</span>
+                            )}
+                            {showtime.isPreview && (
+                              <span className="ml-1.5 opacity-70">AV.P</span>
+                            )}
+                            {showtime.format && (
+                              <span className="ml-1.5 font-semibold">
+                                {showtime.format}
+                              </span>
+                            )}
+                          </span>
+                        ))}
                       </div>
-                    </article>
+                    </div>
                   ))}
                 </div>
-              )}
-            </motion.section>
-          ))}
-
-        {!loading && !error && theaters.length > 0 && totalFilms === 0 && (
-          <p className="py-8 text-center text-sm text-ink-400">
-            Toutes les salles sélectionnées sont vides ce jour-là.{' '}
-            <Link to="/" className="text-amber-glow underline-offset-4 hover:underline">
-              Retour à l\u2019accueil
-            </Link>
-          </p>
+              </motion.article>
+            ))}
+          </div>
         )}
       </div>
 
       {/* legend */}
-      {!loading && !error && totalFilms > 0 && (
+      {!loading && !error && films.length > 0 && (
         <p className="mt-12 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-ink-800 pt-6 font-mono text-[11px] text-ink-400">
           <span className="flex items-center gap-2">
-            <span className="inline-block size-2 rounded-full bg-amber-glow" /> format premium
+            <span className="inline-block size-2 rounded-full bg-glow-500" /> format premium
             (IMAX, 4DX, Dolby Atmos…)
           </span>
           <span className="flex items-center gap-2">

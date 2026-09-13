@@ -15,8 +15,9 @@
   --color-ink-200: #c4c4d2;
   --color-ink-100: #e6e6ee;
 
-  --color-amber-glow: #f5b942;
-  --color-amber-deep: #c98f1d;
+  --color-glow-500: #6562db;
+  --color-glow-400: #8a88e8;
+  --color-glow-600: #4d4bc2;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -34,7 +35,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-amber-glow);
+  background: var(--color-glow-500);
   color: var(--color-ink-950);
 }
 

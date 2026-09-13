@@ -22,7 +22,7 @@ export function Layout() {
           <NavLink to="/" className="group flex items-center gap-2.5">
             <MoonStars
               weight="fill"
-              className="size-6 text-amber-glow transition-transform duration-300 group-hover:rotate-12"
+              className="size-6 text-glow-500 transition-transform duration-300 group-hover:rotate-12"
             />
             <span className="text-lg font-semibold tracking-tight">Minuit</span>
           </NavLink>
@@ -46,7 +46,7 @@ export function Layout() {
             ))}
             <a
               href="/dashboard"
-              className="ml-1 hidden items-center gap-2 rounded-full bg-amber-glow px-4 py-1.5 text-sm font-semibold text-ink-950 transition-all duration-200 hover:bg-amber-deep active:scale-[0.98] sm:flex"
+              className="ml-1 hidden items-center gap-2 rounded-full bg-glow-500 px-4 py-1.5 text-sm font-semibold text-ink-950 transition-all duration-200 hover:bg-glow-600 active:scale-[0.98] sm:flex"
             >
               <Popcorn weight="fill" className="size-4" />
               Voir les séances
@@ -62,11 +62,20 @@ export function Layout() {
       <footer className="border-t border-ink-800">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-ink-400 sm:flex-row sm:px-6">
           <p className="flex items-center gap-2">
-            <MoonStars weight="fill" className="size-4 text-amber-glow" />
+            <MoonStars weight="fill" className="size-4 text-glow-500" />
             Minuit — données Allociné, mises en cache 6 h
           </p>
-          <p className="font-mono text-xs">
-            {new Date().getFullYear()} · Strasbourg
+          <p className="font-mono text-xs">{new Date().getFullYear()} · Strasbourg</p>
+          <p className="text-sm text-ink-300">
+            Fait avec{' '}
+            <a
+              href="https://wyliam.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-glow-400 underline-offset-4 transition-colors hover:text-glow-500 hover:underline"
+            >
+              &lt;3 par Wyliam
+            </a>
           </p>
         </div>
       </footer>
