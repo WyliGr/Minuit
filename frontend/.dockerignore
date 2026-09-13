@@ -1,5 +1,0 @@
-node_modules
-dist
-*.local
-.oxlintrc.json
-README.md
